@@ -1,0 +1,33 @@
+buildscript {
+    repositories {
+        maven {
+            url 'http://62.4.29.69/maven'
+        }
+    }
+    dependencies {
+        classpath 'com.fox2code:udk:1.0.1'
+    }
+}
+
+apply plugin: 'udk.vanilla'
+
+group 'com.fox2code'
+version '1.0.0'
+
+repositories {
+    maven {
+        url = 'https://repo.spongepowered.org/maven'
+    }
+}
+
+dependencies {
+    implementation 'org.ow2.asm:asm-commons:7.2'
+    implementation 'org.ow2.asm:asm-util:7.2'
+    implementation 'org.spongepowered:mixin:0.8-SNAPSHOT'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+udk {
+    version = "1.15"
+    main = "net.puzzle_mod_loader.launch.LaunchClient"
+}
