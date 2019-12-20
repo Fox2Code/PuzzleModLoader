@@ -40,7 +40,19 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
                 name.startsWith("org.objectweb.asm.")) {
             return parent.loadClass(name);
         } else {
-            return super.loadClass(name);
+            try {
+                return super.loadClass(name);
+            } catch (ClassNotFoundException c) {
+                if (name.startsWith("net.minecraft.") ||
+                        name.startsWith("net.puzzle_mod_loader.")) {
+                    throw c;
+                }
+                try {
+                    return parent.loadClass(name);
+                } catch (ClassNotFoundException ce) {
+                    throw c;
+                }
+            }
         }
     }
 
@@ -57,7 +69,7 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
             if (name.startsWith("#")) {
                 return this.createFactoryClass(name);
             }
-            URL ressource = getResource(name.replace('.', '/').concat(".class"));
+            URL ressource = this.getResource(name.replace('.', '/').concat(".class"));
             if (ressource==null) throw new ClassNotFoundException(name);
             Launch.lastLoadedClass = System.currentTimeMillis();
             Launch.lastLoadedClassName = name;

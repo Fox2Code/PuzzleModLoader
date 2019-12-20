@@ -1,17 +1,21 @@
 package net.puzzle_mod_loader.utils;
 
+import net.puzzle_mod_loader.launch.Java9Fix;
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.util.Iterator;
 import java.util.Objects;
 
 /**
  * Easier way to do reflection in java
  */
-public final class ReflectedClass {
+public final class ReflectedClass implements Iterable<ReflectedClass> {
     public static final ReflectedClass NULL = new ReflectedClass(null);
 
     public static ReflectedClass of(Object object) {
@@ -71,6 +75,7 @@ public final class ReflectedClass {
         return this.object == null ? null : this.object instanceof Class<?> ? (Class<?>) this.object : this.object.getClass();
     }
 
+    @SuppressWarnings("ConstantConditions")
     public String getClassName() {
         return this.object == null ? "null" : this.getObjClass().getName();
     }
@@ -106,7 +111,7 @@ public final class ReflectedClass {
         Class<?> cl = this.getObjClass();
         while (cl != Object.class && cl != null) {
             for (Field field:cl.getDeclaredFields()) if (field.getName().equals(name) && Modifier.isStatic(field.getModifiers()) == this.isClass()) {
-                if (!field.isAccessible()) field.setAccessible(true);
+                if (!field.isAccessible()) Java9Fix.setAccessible(field);
                 return field;
             }
             cl = cl.getSuperclass();
@@ -133,7 +138,7 @@ public final class ReflectedClass {
     }
 
     public Object runAccessible(Executable executable,Object... args) throws ReflectiveOperationException {
-        if (!executable.isAccessible()) executable.setAccessible(true);
+        if (!executable.isAccessible()) Java9Fix.setAccessible(executable);
         if (executable instanceof Constructor) {
             return ((Constructor<?>) executable).newInstance(args);
         }
@@ -211,5 +216,49 @@ public final class ReflectedClass {
     @Override
     public int hashCode() {
         return object.hashCode()^~0;
+    }
+
+    @NotNull
+    @Override
+    public Iterator<ReflectedClass> iterator() {
+        if (this.isClass()) {
+            throw new ClassCastException("Can't iterate on static context");
+        }
+        if (object instanceof Object[]) {
+            final Object[] array = (Object[]) object;
+            return new Iterator<ReflectedClass>() {
+                int index = 0;
+
+                @Override
+                public boolean hasNext() {
+                    return !(index < array.length);
+                }
+
+                @Override
+                public ReflectedClass next() {
+                    return ReflectedClass.of(array[index++]);
+                }
+            };
+        }
+        if (!(object instanceof Iterable<?>)) {
+            throw new ClassCastException(this.getClassName()+" is not Iterable!");
+        }
+        final Iterator<?> iterator = ((Iterable<?>) object).iterator();
+        return new Iterator<ReflectedClass>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public ReflectedClass next() {
+                return ReflectedClass.of(iterator.next());
+            }
+
+            @Override
+            public void remove() {
+                iterator.remove();
+            }
+        };
     }
 }
