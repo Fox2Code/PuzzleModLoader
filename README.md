@@ -9,4 +9,3 @@ If your code has been stolen by someone and put to the mod loader please create 
 If you want to add yourself as a contributor you can add you own tag in
 `net.puzzle_mod_loader.core.Contributors` and if your pull request is accepted
 you will automacily join the list (Or you can create an issue if you already contributed)
-test
