@@ -1,6 +1,5 @@
 package net.puzzle_mod_loader.events;
 
-import com.google.common.eventbus.EventBus;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.puzzle_mod_loader.launch.event.EventPriority;
 

@@ -1,7 +1,6 @@
 package net.puzzle_mod_loader.core;
 
 import net.puzzle_mod_loader.events.EventManager;
-import net.puzzle_mod_loader.events.client.ClientEvent;
 import net.puzzle_mod_loader.events.client.ClientTickEvent;
 import net.puzzle_mod_loader.events.gui.ChangeGuiEvent;
 import net.puzzle_mod_loader.events.gui.GuiInitEvent;
