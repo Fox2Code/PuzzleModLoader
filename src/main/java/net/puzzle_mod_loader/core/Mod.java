@@ -476,6 +476,10 @@ public abstract class Mod {
                 "}\n");
     }
 
+    public final void registerColumnModel(Block var1) {
+        this.registerColumnModel(var1, new ResourceLocation(Registry.BLOCK.getKey(var1)+"_top"), Registry.BLOCK.getKey(var1));
+    }
+
     public final void registerColumnModel(Block var1, ResourceLocation top, ResourceLocation side) {
         if (!Launch.isClient()) return;
         ResourceLocation resourceLocation = Registry.BLOCK.getKey(var1);
@@ -494,7 +498,13 @@ public abstract class Mod {
                     "    }\n" +
                     "}\n");
         }
-        this.injectResource("assets/"+resourceLocation.getNamespace()+"/models/block/"+resourceLocation.getPath()+".json", "");
+        this.injectResource("assets/"+resourceLocation.getNamespace()+"/models/block/"+resourceLocation.getPath()+".json", "{\n" +
+                "    \"parent\": \"block/cube_column\",\n" +
+                "    \"textures\": {\n" +
+                "        \"end\": \""+top.getNamespace()+":block/"+top.getPath()+"\",\n" +
+                "        \"side\": \""+side.getNamespace()+":block/"+side.getPath()+"\"\n" +
+                "    }\n" +
+                "}\n");
         this.injectResource("assets/"+resourceLocation.getNamespace()+"/models/item/"+resourceLocation.getPath()+".json", "{\n" +
                 "    \"parent\": \""+resourceLocation.getNamespace()+":block/"+resourceLocation.getPath()+"\"\n" +
                 "}\n");
