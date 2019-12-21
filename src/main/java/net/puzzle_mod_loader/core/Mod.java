@@ -1,6 +1,7 @@
 package net.puzzle_mod_loader.core;
 
 import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.puzzle_mod_loader.client.RendererManager;
@@ -183,7 +184,7 @@ public abstract class Mod {
     public Item easyItem(String id,Item.Properties properties) {
         Item ITEM;
         this.registerItem(id, ITEM = new Item(properties));
-        this.registerItemTexture(ITEM);
+        this.registerItemModel(ITEM);
         return ITEM;
     }
 
@@ -202,7 +203,7 @@ public abstract class Mod {
     public Block easyBlock(String id,Block.Properties properties,CreativeModeTab tab) {
         Block BLOCK = new Block(properties);
         this.registerBlock(id, BLOCK, tab);
-        this.registerBlockTexture(BLOCK);
+        this.registerBlockModel(BLOCK);
         this.registerDrop(BLOCK);
         return BLOCK;
     }
@@ -240,7 +241,7 @@ public abstract class Mod {
     public Block easySlab(String id,Block from,Block.Properties properties,CreativeModeTab tab) {
         Block BLOCK = new SlabBlock(properties);
         this.registerBlock(id, BLOCK, tab);
-        this.registerSlabTexture(BLOCK, from);
+        this.registerSlabModel(BLOCK, from);
         this.registerSlabDrop(BLOCK);
         this.registerShapedRecipe(new String[]{"XXX"}, new ItemStack(BLOCK, 6), 'X', from);
         return BLOCK;
@@ -279,7 +280,7 @@ public abstract class Mod {
     public Block easyStair(String id,Block from,Block.Properties properties,CreativeModeTab tab) {
         Block BLOCK = new CustomStairBlock(from.defaultBlockState(), properties);
         this.registerBlock(id, BLOCK, tab);
-        this.registerStairTexture(BLOCK, from);
+        this.registerStairModel(BLOCK, from);
         this.registerDrop(BLOCK);
         this.registerShapedRecipe(new String[]{"  X", " XX", "XXX"}, new ItemStack(BLOCK, 4), 'X', from);
         this.registerShapedRecipe(new String[]{"X  ", "XX ", "XXX"}, new ItemStack(BLOCK, 4), 'X', from);
@@ -301,7 +302,7 @@ public abstract class Mod {
     public Block easyOre(String id, Block.Properties properties,CreativeModeTab tab,Item drop, int maxSize, int maxVein, int maxY,int minXP,int maxXP,boolean dropOre) {
         Block BLOCK = new CustomOreBlock(properties, minXP, maxXP);
         this.registerBlock(id, BLOCK, tab);
-        this.registerBlockTexture(BLOCK);
+        this.registerBlockModel(BLOCK);
         if (dropOre) {
             this.registerOreDrop(BLOCK, drop);
         } else {
@@ -451,12 +452,12 @@ public abstract class Mod {
                 "}");
     }
 
-    public final void registerBlockTexture(Block var1) {
+    public final void registerBlockModel(Block var1) {
         if (!Launch.isClient()) return;
-        this.registerBlockTexture(var1, Registry.BLOCK.getKey(var1));
+        this.registerBlockModel(var1, Registry.BLOCK.getKey(var1));
     }
 
-    public final void registerBlockTexture(Block var1, ResourceLocation texture) {
+    public final void registerBlockModel(Block var1, ResourceLocation texture) {
         if (!Launch.isClient()) return;
         ResourceLocation resourceLocation = Registry.BLOCK.getKey(var1);
         this.injectResource("assets/"+resourceLocation.getNamespace()+"/blockstates/"+resourceLocation.getPath()+".json", "{\n" +
@@ -471,19 +472,43 @@ public abstract class Mod {
                 "    }\n" +
                 "}\n");
         this.injectResource("assets/"+resourceLocation.getNamespace()+"/models/item/"+resourceLocation.getPath()+".json", "{\n" +
-                "    \"parent\": \""+texture.getNamespace()+":block/"+texture.getPath()+"\"\n" +
+                "    \"parent\": \""+resourceLocation.getNamespace()+":block/"+resourceLocation.getPath()+"\"\n" +
                 "}\n");
     }
 
-    public final void registerSlabTexture(Block var1, Block from) {
-        this.registerSlabTexture(var1, Registry.BLOCK.getKey(from));
+    public final void registerColumnModel(Block var1, ResourceLocation top, ResourceLocation side) {
+        if (!Launch.isClient()) return;
+        ResourceLocation resourceLocation = Registry.BLOCK.getKey(var1);
+        if (var1.defaultBlockState().hasProperty(BlockStateProperties.AXIS)) {
+            this.injectResource("assets/"+resourceLocation.getNamespace()+"/blockstates/"+resourceLocation.getPath()+".json", "{\n" +
+                    "    \"variants\": {\n" +
+                    "        \"axis=y\": { \"model\": \""+resourceLocation.getNamespace()+":block/"+resourceLocation.getPath()+"\" },\n" +
+                    "        \"axis=z\": { \"model\": \""+resourceLocation.getNamespace()+":block/"+resourceLocation.getPath()+"\", \"x\": 90 },\n" +
+                    "        \"axis=x\": { \"model\": \""+resourceLocation.getNamespace()+":block/"+resourceLocation.getPath()+"\", \"x\": 90, \"y\": 90 }\n" +
+                    "    }\n" +
+                    "}\n");
+        } else {
+            this.injectResource("assets/"+resourceLocation.getNamespace()+"/blockstates/"+resourceLocation.getPath()+".json", "{\n" +
+                    "    \"variants\": {\n" +
+                    "        \"\": { \"model\": \""+resourceLocation.getNamespace()+":block/"+resourceLocation.getPath()+"\" }\n" +
+                    "    }\n" +
+                    "}\n");
+        }
+        this.injectResource("assets/"+resourceLocation.getNamespace()+"/models/block/"+resourceLocation.getPath()+".json", "");
+        this.injectResource("assets/"+resourceLocation.getNamespace()+"/models/item/"+resourceLocation.getPath()+".json", "{\n" +
+                "    \"parent\": \""+resourceLocation.getNamespace()+":block/"+resourceLocation.getPath()+"\"\n" +
+                "}\n");
     }
 
-    public final void registerSlabTexture(Block var1, ResourceLocation from) {
-        this.registerSlabTexture(var1, from, from);
+    public final void registerSlabModel(Block var1, Block from) {
+        this.registerSlabModel(var1, Registry.BLOCK.getKey(from));
     }
 
-    public final void registerSlabTexture(Block var1, ResourceLocation fullBlock, ResourceLocation texture) {
+    public final void registerSlabModel(Block var1, ResourceLocation from) {
+        this.registerSlabModel(var1, from, from);
+    }
+
+    public final void registerSlabModel(Block var1, ResourceLocation fullBlock, ResourceLocation texture) {
         if (!Launch.isClient()) return;
         ResourceLocation resourceLocation = Registry.BLOCK.getKey(var1);
         this.injectResource("assets/"+resourceLocation.getNamespace()+"/blockstates/"+resourceLocation.getPath()+".json", "{\n" +
@@ -514,11 +539,11 @@ public abstract class Mod {
                 "}\n");
     }
 
-    public final void registerStairTexture(Block var1, Block texture) {
-        this.registerStairTexture(var1, Registry.BLOCK.getKey(texture));
+    public final void registerStairModel(Block var1, Block texture) {
+        this.registerStairModel(var1, Registry.BLOCK.getKey(texture));
     }
 
-    public final void registerStairTexture(Block var1, ResourceLocation texture) {
+    public final void registerStairModel(Block var1, ResourceLocation texture) {
         if (!Launch.isClient()) return;
         ResourceLocation resourceLocation = Registry.BLOCK.getKey(var1);
         this.injectResource("assets/"+resourceLocation.getNamespace()+"/blockstates/"+resourceLocation.getPath()+".json", "{\n" +
@@ -594,12 +619,12 @@ public abstract class Mod {
                 "}\n");
     }
 
-    public final void registerItemTexture(Item var1) {
+    public final void registerItemModel(Item var1) {
         if (!Launch.isClient()) return;
-        this.registerItemTexture(var1, Registry.ITEM.getKey(var1));
+        this.registerItemModel(var1, Registry.ITEM.getKey(var1));
     }
 
-    public final void registerItemTexture(Item var1, ResourceLocation texture) {
+    public final void registerItemModel(Item var1, ResourceLocation texture) {
         if (!Launch.isClient()) return;
         ResourceLocation resourceLocation = Registry.ITEM.getKey(var1);
         this.injectResource("assets/"+resourceLocation.getNamespace()+"/models/item/"+resourceLocation.getPath()+".json", "{\n" +
