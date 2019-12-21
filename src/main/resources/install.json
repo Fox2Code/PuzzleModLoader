@@ -1,0 +1,14 @@
+{
+  "target": ["1.15", "1.15.1"],
+  "dependencies": {
+    "https://repo1.maven.org/maven2/": [
+      "org.ow2.asm:asm:7.2",
+      "org.ow2.asm:asm-tree:7.2",
+      "org.ow2.asm:asm-analysis:7.2",
+      "org.ow2.asm:asm-commons:7.2",
+      "org.ow2.asm:asm-util:7.2"
+  ]},
+  "specialDependencies": {
+    "org.spongepowered:mixin:0.8-SNAPSHOT": "https://repo.spongepowered.org/maven/org/spongepowered/mixin/0.8-SNAPSHOT/mixin-0.8-20191213.172802-13.jar"
+  }
+}

@@ -1,5 +1,6 @@
 package net.puzzle_mod_loader.core;
 
+import net.puzzle_mod_loader.registry.WoodRegistry;
 import net.puzzle_mod_loader.launch.Launch;
 import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
@@ -77,8 +78,11 @@ public class ModLoader {
                 mod.onClientInit();
             }
         }
+        LOGGER.info("Updating registry...");
         modsInit = true;
         GameRegistry.init();
+        WoodRegistry.parseProviders();
+        LOGGER.info("Post initialising registry...");
         for (Mod mod:getMods()) {
             mod.onPostInit();
             if (client) {
