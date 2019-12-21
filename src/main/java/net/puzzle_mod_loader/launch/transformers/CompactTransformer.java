@@ -22,15 +22,15 @@ public class CompactTransformer implements ClassTransformer {
         }
         if (classNode.invisibleTypeAnnotations != null) {
             for (TypeAnnotationNode annotationNode : classNode.invisibleTypeAnnotations) {
-                if (annotationNode.desc.equals("net/puzzle_mod_loader/compact/FallbackSuperclass")) {
+                if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/FallbackSuperclass;")) {
                     if (!Launch.hasClass(classNode.superName)) {
                         classNode.superName = ((Type) annotationNode.values.get(0)).getDescriptor();
                     }
                 }
-                if (annotationNode.desc.equals("net/puzzle_mod_loader/compact/OptionalInterfaces")) {
+                if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/OptionalInterfaces;")) {
                     classNode.interfaces.removeIf(s -> !Launch.hasClass(s));
                 }
-                if (annotationNode.desc.equals("net/puzzle_mod_loader/compact/Implement")) {
+                if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Implement;")) {
                     if (classNode.interfaces == null) {
                         classNode.interfaces = new ArrayList<>();
                     }
@@ -58,25 +58,25 @@ public class CompactTransformer implements ClassTransformer {
                 }
                 if (methodNode.invisibleTypeAnnotations != null) {
                     for (TypeAnnotationNode annotationNode : methodNode.invisibleTypeAnnotations) {
-                        if (annotationNode.desc.equals("net/puzzle_mod_loader/compact/Require")) {
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Require;")) {
                             if (!Launch.hasClass(((Type) annotationNode.values.get(0)).getDescriptor())) {
                                 methodIterator.remove();
                                 continue methods;
                             }
                         }
-                        if (annotationNode.desc.equals("net/puzzle_mod_loader/compact/RemoveIf")) {
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/RemoveIf;")) {
                             if (Launch.hasClass(((Type) annotationNode.values.get(0)).getDescriptor())) {
                                 methodIterator.remove();
                                 continue methods;
                             }
                         }
-                        if (annotationNode.desc.equals("net/puzzle_mod_loader/compact/ClientOnly")) {
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/ClientOnly;")) {
                             if (!Launch.isClient()) {
                                 methodIterator.remove();
                                 continue methods;
                             }
                         }
-                        if (annotationNode.desc.equals("net/puzzle_mod_loader/compact/Constructor")) {
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Constructor;")) {
                             String desc;
                             String owner = methodNode.desc.substring(methodNode.desc.indexOf(')') + 1);
                             if (!owner.startsWith("L")) {
@@ -126,19 +126,19 @@ public class CompactTransformer implements ClassTransformer {
                 FieldNode fieldNode = fieldsIterator.next();
                 if (fieldNode.invisibleTypeAnnotations != null) {
                     for (TypeAnnotationNode annotationNode : fieldNode.invisibleTypeAnnotations) {
-                        if (annotationNode.desc.equals("net/puzzle_mod_loader/compact/Require")) {
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Require;")) {
                             if (!Launch.hasClass(((Type) annotationNode.values.get(0)).getDescriptor())) {
                                 fieldsIterator.remove();
                                 continue fields;
                             }
                         }
-                        if (annotationNode.desc.equals("net/puzzle_mod_loader/compact/RemoveIf")) {
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/RemoveIf;")) {
                             if (Launch.hasClass(((Type) annotationNode.values.get(0)).getDescriptor())) {
                                 fieldsIterator.remove();
                                 continue fields;
                             }
                         }
-                        if (annotationNode.desc.equals("net/puzzle_mod_loader/compact/ClientOnly")) {
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/ClientOnly;")) {
                             if (!Launch.isClient()) {
                                 fieldsIterator.remove();
                                 continue fields;

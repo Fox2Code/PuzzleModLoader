@@ -1,16 +1,20 @@
 package net.puzzle_mod_loader.core;
 
+import com.google.common.collect.ImmutableList;
 import net.puzzle_mod_loader.utils.DesktopUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Contributors {
-    public static final ArrayList<Contributor> contributors = new ArrayList<>();
+    public static final List<Contributor> contributors;
 
     static {
-        contributors.add(new Contributor("Fox2Code"    , "https://github.com/Fox2Code"));
-        contributors.add(new Contributor("Furry2Code"  , "https://github.com/Furry2Code"));
+        ArrayList<Contributor> contributorsList = new ArrayList<>();
+        contributorsList.add(new Contributor("Fox2Code"    , "https://github.com/Fox2Code"));
+        contributorsList.add(new Contributor("Furry2Code"  , "https://github.com/Furry2Code"));
+        contributors = ImmutableList.copyOf(contributorsList);
     }
 
     public static final class Contributor {
