@@ -36,6 +36,7 @@ import java.util.function.Supplier;
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 public abstract class Mod {
     public static final boolean CLIENT = Launch.isClient();
+    public static final boolean BUKKIT = Launch.isBukkit();
     public static final boolean DEV_ENV = "true".equalsIgnoreCase(System.getProperty("udk.startup.init"));
 
     String id;

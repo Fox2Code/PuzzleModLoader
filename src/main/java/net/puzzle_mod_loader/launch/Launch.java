@@ -12,7 +12,7 @@ public class Launch {
     public static File home;
     static PuzzleClassLoader classLoader;
     static CompactTransformer compactTransformer = new CompactTransformer();
-    static boolean client;
+    static boolean client, bukkit;
 
     public static File getHomeDir() {
         return home;
@@ -24,6 +24,10 @@ public class Launch {
 
     public static boolean isClient() {
         return client;
+    }
+
+    public static boolean isBukkit() {
+        return bukkit;
     }
 
     public static ClassData getClassData(String clName) {

@@ -76,6 +76,12 @@ public class CompactTransformer implements ClassTransformer {
                                 continue methods;
                             }
                         }
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/BukkitOnly;")) {
+                            if (!Launch.isBukkit()) {
+                                methodIterator.remove();
+                                continue methods;
+                            }
+                        }
                         if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Constructor;")) {
                             String desc;
                             String owner = methodNode.desc.substring(methodNode.desc.indexOf(')') + 1);
@@ -140,6 +146,12 @@ public class CompactTransformer implements ClassTransformer {
                         }
                         if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/ClientOnly;")) {
                             if (!Launch.isClient()) {
+                                fieldsIterator.remove();
+                                continue fields;
+                            }
+                        }
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/BukkitOnly;")) {
+                            if (!Launch.isBukkit()) {
                                 fieldsIterator.remove();
                                 continue fields;
                             }
