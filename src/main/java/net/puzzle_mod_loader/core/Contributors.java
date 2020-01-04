@@ -13,7 +13,7 @@ public class Contributors {
     static {
         ArrayList<Contributor> contributorsList = new ArrayList<>();
         contributorsList.add(new Contributor("Fox2Code"    , "https://github.com/Fox2Code"));
-        contributorsList.add(new Contributor("Furry2Code"  , "https://github.com/Furry2Code"));
+        contributorsList.add(new Contributor("Fernixx"  , "https://github.com/Fernixx"));
         contributors = ImmutableList.copyOf(contributorsList);
     }
 
