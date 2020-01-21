@@ -42,7 +42,7 @@ public class EventManager {
                 }
             });
         }
-        for (int i = 1;i < 6;i++) {
+        for (int i = 1;i < 7;i++) {
             for (Handler handler:HANDLER[i]) {
                 handler.onEvent(event);
             }
@@ -79,6 +79,7 @@ public class EventManager {
             };
         }
         List<Handler>[] sets = HANDLERS.computeIfAbsent(System.identityHashCode(event), i -> new LinkedList[]{
+                new LinkedList<Handler>(),
                 new LinkedList<Handler>(),
                 new LinkedList<Handler>(),
                 new LinkedList<Handler>(),

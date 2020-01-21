@@ -45,11 +45,12 @@ public class Launch {
             logs.mkdirs();
         }
         classLoader = new PuzzleClassLoader(Launch.class.getClassLoader());
-        classLoader.addTransformerExclusion("com.fox2code.puzzle.");
+        classLoader.addTransformerExclusion("net.puzzle_mod_loader.core.");
+        classLoader.addTransformerExclusion("net.puzzle_mod_loader.utils.");
+        classLoader.addTransformerExclusion("net.puzzle_mod_loader.helper.");
         classLoader.addTransformerExclusion("org.spongepowered.asm.mixin.");
         Thread.currentThread().setContextClassLoader(classLoader);
         classLoader.loadClass("net.puzzle_mod_loader.core.mixin.MixinTransformer").getDeclaredMethod("init0").invoke(null);
-        classLoader.addClassTransformers(compactTransformer);
         classLoader.addClassTransformers(new RegistryTransformer());
         classLoader.addClassTransformers(new DataPackTransformer());
         classLoader.addClassTransformers(new ServerTransformer());

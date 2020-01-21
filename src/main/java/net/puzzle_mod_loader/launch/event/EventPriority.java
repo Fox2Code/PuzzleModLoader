@@ -7,6 +7,7 @@ package net.puzzle_mod_loader.launch.event;
  */
 public enum EventPriority {
     ASYNC,
+    MONITOR,
     HIGHEST,
     HIGH,
     NORMAL,
