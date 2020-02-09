@@ -11,7 +11,7 @@ public class Launch {
 
     public static File home;
     static PuzzleClassLoader classLoader;
-    static CompactTransformer compactTransformer = new CompactTransformer();
+    public static final CompactTransformer compactTransformer = new CompactTransformer();
     static boolean client, bukkit;
 
     public static File getHomeDir() {

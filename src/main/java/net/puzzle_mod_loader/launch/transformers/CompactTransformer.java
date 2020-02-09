@@ -3,6 +3,7 @@ package net.puzzle_mod_loader.launch.transformers;
 import net.puzzle_mod_loader.launch.ClassTransformer;
 import net.puzzle_mod_loader.launch.Launch;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
@@ -17,6 +18,13 @@ public class CompactTransformer implements ClassTransformer {
         ClassReader classReader = new ClassReader(bytes);
         ClassNode classNode = new ClassNode();
         classReader.accept(classNode, ClassReader.SKIP_FRAMES);
+        this.patchClassNode(classNode);
+        ClassWriter classWriter = new ClassWriter(0);
+        classNode.accept(classWriter);
+        return classWriter.toByteArray();
+    }
+
+    public void patchClassNode(ClassNode classNode) {
         if ((classNode.access&ACC_INTERFACE) != 0) {
             classNode.access = (classNode.access&~(ACC_PRIVATE|ACC_PROTECTED))|ACC_PUBLIC;
         }
@@ -160,6 +168,5 @@ public class CompactTransformer implements ClassTransformer {
                 }
             }
         }
-        return bytes;
     }
 }

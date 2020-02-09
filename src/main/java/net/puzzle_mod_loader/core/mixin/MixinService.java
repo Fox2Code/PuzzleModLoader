@@ -97,6 +97,7 @@ public class MixinService extends MixinServiceAbstract implements IMixinService,
         InputStream is = Launch.getClassLoader().getResourceAsStream(name + ".class");
         if (is == null) throw new ClassNotFoundException(name);
         new ClassReader(is).accept(classNode, 0);
+        Launch.compactTransformer.patchClassNode(classNode);
         return classNode;
     }
 
