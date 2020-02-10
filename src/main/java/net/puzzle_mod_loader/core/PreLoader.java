@@ -26,7 +26,7 @@ final class PreLoader {
         if (preloading || preloaded) {
             return;
         }
-        new Thread(PreLoader::preload, "Async - Preload").start();
+        new Thread(PreLoader::preload, "Async-Preload").start();
     }
 
     static void preload() {

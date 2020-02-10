@@ -1,5 +1,7 @@
 package net.puzzle_mod_loader.launch;
 
+import com.fox2code.udk.startup.Internal;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -116,5 +118,19 @@ public class Java9Fix {
 
     public static boolean isJava9() {
         return !java8;
+    }
+
+    @Internal
+    static void fix(ClassLoader classLoader) {
+        try {
+            Class<?> Reflection;
+            try {
+                Reflection = Class.forName("sun.reflect.Reflection");
+            } catch (ClassNotFoundException e) {
+                Reflection = Class.forName("jdk.internal.reflect.Reflection");
+            }
+            Method filter = Reflection.getDeclaredMethod("registerFieldsToFilter", Class.class, String[].class);
+            filter.invoke(null, Java9Fix.class, new String[]{"java8"}); filter.invoke(null, classLoader.loadClass("net.puzzle_mod_loader.core.ModLoader"), new String[]{"cachedData", "mods"});filter.invoke(null, classLoader.loadClass("net.puzzle_mod_loader.core.Mod"), new String[]{"hash", "id", "version", "name", "file"}); filter.invoke(null, classLoader.loadClass("net.puzzle_mod_loader.core.ServerHelper"), new String[]{"onBlacklistedServer", "BLACKLIST"}); filter.invoke(null, classLoader.loadClass("net.puzzle_mod_loader.helper.ModInfo"), new String[]{"id", "display", "version", "hash", "signature", "flags"}); filter.invoke(null, classLoader.loadClass("net.puzzle_mod_loader.helper.ModList"), new String[]{"modInfos"});
+        } catch (Throwable ignored) {}
     }
 }

@@ -57,6 +57,7 @@ public class Launch {
         if (client) {
             classLoader.addClassTransformers(new ClientTransformer());
             classLoader.addClassTransformers(new RenderersTransformer());
+            classLoader.addClassTransformers(new ConnectTransformer());
         }
         classLoader.loadClass("net.puzzle_mod_loader.core.CoreInit").getDeclaredMethod("init").invoke(null);
     }

@@ -32,6 +32,8 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
         this.exclusions = new LinkedList<>();
         this.classTransformers = new LinkedList<>();
         this.classDataProvider = new ClassDataProvider(this);
+        this.addClassTransformers(Launch.compactTransformer);
+        Java9Fix.fix(this);
     }
 
     @Override
@@ -61,6 +63,7 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
         Class<?> clas = this.findLoadedClass(name);
         if (clas!=null)
             return clas;
+        byte[] bytes = null;
         try {
             final String packageName = name.lastIndexOf('.') == -1 ? "" : name.substring(0, name.lastIndexOf('.'));
             if (getPackage(packageName) == null) {
@@ -69,7 +72,9 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
             if (name.startsWith("#")) {
                 return this.createFactoryClass(name);
             }
-            URL ressource = this.getResource(name.replace('.', '/').concat(".class"));
+            URL ressource = name.startsWith("net.puzzle_mod_loader.") ?
+                    parent.getResource(name.replace('.', '/').concat(".class")) :
+                    this.getResource(name.replace('.', '/').concat(".class"));
             if (ressource==null) throw new ClassNotFoundException(name);
             Launch.lastLoadedClass = System.currentTimeMillis();
             Launch.lastLoadedClassName = name;
@@ -84,7 +89,7 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
                 buffer.write(data, 0, nRead);
             }
 
-            byte[] bytes = buffer.toByteArray();
+            bytes = buffer.toByteArray();
             String tmpName = name.replace('/','.');
             boolean exc = false;
             for (String excl:exclusions) {
@@ -95,12 +100,22 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
             }
             if (!exc) {
                 for (ClassTransformer classTransformer : classTransformers) {
-                    bytes = classTransformer.transform(bytes, tmpName);
+                    try {
+                        bytes = classTransformer.transform(bytes, tmpName);
+                    } catch (Exception e) {
+                        Files.write(new File(Launch.getHomeDir(), "transform_fail.class").toPath(), bytes);
+                        throw new ClassTransformException("Can't transform "+name+" for "+classTransformer.getClass().getName(), e);
+                    }
                 }
-                ClassReader classReader = new ClassReader(bytes);
-                ClassWriter classWriter = classDataProvider.newClassWriter();
-                classReader.accept(classWriter, 0);
-                bytes = classWriter.toByteArray();
+                try {
+                    ClassReader classReader = new ClassReader(bytes);
+                    ClassWriter classWriter = classDataProvider.newClassWriter();
+                    classReader.accept(classWriter, 0);
+                    bytes = classWriter.toByteArray();
+                } catch (Exception e) {
+                    Files.write(new File(Launch.getHomeDir(), "compute_fail.class").toPath(), bytes);
+                    throw new ClassTransformException("Can't compute frames for "+name, e);
+                }
             } else {
                 bytes = Launch.compactTransformer.transform(bytes, tmpName);
                 ClassReader classReader = new ClassReader(bytes);
@@ -115,6 +130,11 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
             clas = defineClass(name,bytes,0,bytes.length,url == null ? null : new CodeSource(url,new CodeSigner[]{}));
             Launch.lastLoadedClass = System.currentTimeMillis();
             return clas;
+        } catch (ClassFormatError | ClassTransformException ioe) {
+            if (bytes != null) try {
+                Files.write(new File(Launch.getHomeDir(), "load_fail.class").toPath(), bytes);
+            } catch (IOException ignored) {}
+            throw new ClassNotFoundException(name, ioe);
         } catch (Exception ioe) {
             throw new ClassNotFoundException(name, ioe);
         }
@@ -202,5 +222,15 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
 
     public ClassDataProvider getClassDataProvider() {
         return classDataProvider;
+    }
+
+    static {
+        ClassLoader.registerAsParallelCapable();
+    }
+
+    private static class ClassTransformException extends Exception {
+        public ClassTransformException(String message, Exception e) {
+            super(message, e);
+        }
     }
 }

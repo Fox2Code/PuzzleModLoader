@@ -31,6 +31,11 @@ import java.util.function.Supplier;
 
 public class GameRegistry {
     private static LinkedList<Runnable> awaitTasks = new LinkedList<>();
+    private static boolean registryModified;
+
+    public static boolean isRegistryModified() {
+        return registryModified;
+    }
 
     static void init() {
         awaitTasks.forEach(Runnable::run);
@@ -56,6 +61,7 @@ public class GameRegistry {
     }
 
     private static void registerBlock0(ResourceLocation var0, Block var1) {
+        registryModified = true;
         Registry.register(Registry.BLOCK, var0, var1);
     }
 
@@ -64,10 +70,12 @@ public class GameRegistry {
             ((BlockItem)var1).registerBlocks(Item.BY_BLOCK, var1);
         }
 
+        registryModified = true;
         return Registry.register(Registry.ITEM, var0, var1);
     }
 
     public static <T extends AbstractContainerMenu> MenuType<T> registerContainer(ResourceLocation var0, MenuSupplier<T> var1) {
+        registryModified = true;
         return Registry.register(Registry.MENU, var0, newMenuType(var1));
     }
 
@@ -102,6 +110,7 @@ public class GameRegistry {
         if (Biome.EXPLORABLE_BIOMES.isEmpty()) {
             Biomes.OCEAN.getClass();
         }
+        registryModified = true;
         Registry.register(Registry.BIOME, resourceLocation, biome);
     }
 
@@ -110,6 +119,7 @@ public class GameRegistry {
     }
 
     public static <T extends Entity> EntityType<T> registerEntity(ResourceLocation resourceLocation, EntityType<T> entityType) {
+        registryModified = true;
         return Registry.register(Registry.ENTITY_TYPE, resourceLocation, entityType);
     }
 

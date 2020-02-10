@@ -1,20 +1,29 @@
 package net.puzzle_mod_loader.core;
 
+import io.netty.buffer.Unpooled;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.PauseScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.puzzle_mod_loader.events.EventManager;
+import net.puzzle_mod_loader.events.client.ClientJoinEvent;
 import net.puzzle_mod_loader.events.client.ClientTickEvent;
 import net.puzzle_mod_loader.events.gui.ChangeGuiEvent;
 import net.puzzle_mod_loader.events.render.GuiRenderEvent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.PauseScreen;
-import net.minecraft.client.gui.screens.TitleScreen;
 import net.puzzle_mod_loader.events.render.PostUIRenderEvent;
+import net.puzzle_mod_loader.helper.ModList;
 import net.puzzle_mod_loader.launch.Launch;
+import net.puzzle_mod_loader.launch.event.EventPriority;
 import net.puzzle_mod_loader.launch.event.SubscribeEvent;
 import net.puzzle_mod_loader.utils.anim.LinearAnim;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.io.IOException;
 
 public class ClientHandler {
     static void init() {
@@ -87,6 +96,19 @@ public class ClientHandler {
             tmp = (tmp) - font.width(LOADING_MESSAGE);
             int color = 150 + Math.abs((int) (100-((System.currentTimeMillis()/2)%200)));
             font.drawShadow(LOADING_MESSAGE, tmp/2F, pos, new Color(color, color, color).getRGB());
+        }
+    }
+
+    private static final ResourceLocation PUZZLE_MODS = new ResourceLocation("puzzle:mods");
+
+    @SubscribeEvent(priority = EventPriority.ASYNC)
+    public void join(ClientJoinEvent event) {
+        if (!ServerHelper.isOnBlacklistedServer()) {
+            FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
+            try {
+                ModList.encode(byteBuf, ModLoader.getModList());
+            } catch (IOException ignored) {}
+            event.getPacketListener().getConnection().send(new ServerboundCustomPayloadPacket(PUZZLE_MODS, byteBuf));
         }
     }
 }

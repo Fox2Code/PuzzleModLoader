@@ -42,6 +42,7 @@ public abstract class Mod {
     String id;
     String name;
     String version;
+    String hash;
     ModDataPack dataPack;
     File file;
     int recipeID = 0;

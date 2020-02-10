@@ -1,7 +1,12 @@
 package net.puzzle_mod_loader.core;
 
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.ServerStatusPinger;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.puzzle_mod_loader.events.EventManager;
-import net.puzzle_mod_loader.events.client.ClientTickEvent;
+import net.puzzle_mod_loader.events.client.*;
 import net.puzzle_mod_loader.events.gui.ChangeGuiEvent;
 import net.puzzle_mod_loader.events.gui.GuiInitEvent;
 import net.puzzle_mod_loader.events.gui.GuiResizeEvent;
@@ -15,6 +20,7 @@ import net.minecraft.server.packs.FileResourcePack;
 import net.minecraft.server.packs.FolderResourcePack;
 import net.minecraft.server.packs.Pack;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.puzzle_mod_loader.utils.ReflectedClass;
 
 import java.io.File;
 import java.util.List;
@@ -75,5 +81,28 @@ public class ClientHooks {
         getProfiler().push("puzzle");
         EventManager.processEvent(new ClientTickEvent());
         getProfiler().pop();
+    }
+
+    public static void pingHook(ServerData serverData, ServerStatusPinger pinger) {
+        EventManager.processEvent(new ClientPingEvent(serverData, pinger));
+    }
+
+    public static ClientIntentionPacket preJoinHook(ClientIntentionPacket clientIntentionPacket) {
+        ClientPreJoinEvent clientPreJoinEvent;
+        EventManager.processEvent(clientPreJoinEvent = new ClientPreJoinEvent(Minecraft.getInstance().getCurrentServer(), clientIntentionPacket.getProtocolVersion()));
+        try {
+            ReflectedClass.of(clientIntentionPacket).set("protocolVersion",clientPreJoinEvent.getProtocol());
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
+        return clientIntentionPacket;
+    }
+
+    public static void joinHook(ClientPacketListener clientPacketListener) {
+        EventManager.processEvent(new ClientJoinEvent(Minecraft.getInstance().getCurrentServer(), clientPacketListener));
+    }
+
+    public static void onDisconnect(Component component) {
+        EventManager.processEvent(new ClientDisconnectEvent(component));
     }
 }
