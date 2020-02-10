@@ -13,6 +13,9 @@ public class EventManager {
     private static final Executor executors = Executors.newScheduledThreadPool(4);
 
     public static void registerListener(Object object) {
+        if (object instanceof Event) {
+            throw new RuntimeException("Event are not listener!");
+        }
         try {
             Class.forName("#"+object.getClass().getName()+"#Factory").getDeclaredMethod("registerHandlers", object.getClass()).invoke(null, object);
         } catch (ReflectiveOperationException e) {
@@ -28,13 +31,13 @@ public class EventManager {
         }
         final int[] I = {0};
         for (final Handler handler:HANDLER[0]) {
+            I[0]++;
             executors.execute(() -> {
-                I[0]++;
                 try {
                     handler.onEvent(event);
                 } finally {
-                    I[0]--;
                     synchronized (I) {
+                        I[0]--;
                         if (I[0] == 0) {
                             I.notify();
                         }
