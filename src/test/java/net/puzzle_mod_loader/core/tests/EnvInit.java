@@ -20,9 +20,13 @@ public class EnvInit implements EnvMirror {
     @Override
     public void testEventPass() throws Throwable {
         this.handler.pass = false;
+        this.handler.passAsync = false;
         EventManager.processEvent(new TestEvent());
         if (!this.handler.pass) {
             throw new Error("TestEvent don't pass to Handler");
+        }
+        if (!this.handler.passAsync) {
+            throw new Error("TestEvent don't pass to Async Handler");
         }
     }
 
