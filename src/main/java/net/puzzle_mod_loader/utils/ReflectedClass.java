@@ -23,6 +23,8 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
             return NULL;
         } else if (object instanceof ReflectedClass) {
             return (ReflectedClass) object;
+        } else if (object instanceof Reflective) {
+            return ((Reflective) object).asReflectedClass();
         } else {
             return new ReflectedClass(object);
         }
@@ -30,6 +32,38 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
 
     public static ReflectedClass forName(String name) throws ClassNotFoundException {
         return new ReflectedClass(Class.forName(name));
+    }
+
+    public static ReflectedClass forName(Class<?> ctx, String name) throws ClassNotFoundException {
+        if (ctx == null) {
+            return forName(name);
+        }
+        return new ReflectedClass(Class.forName(name.indexOf('.') == -1 ?
+                ctx.getPackage().getName()+"."+name : name, false, ctx.getClassLoader()));
+    }
+
+    public static ReflectedClass $(Class<?> ctx, String exec) throws ReflectiveOperationException {
+        int p = exec.indexOf('(');
+        if (p == -1) {
+            p = exec.lastIndexOf('#');
+            ReflectedClass current;
+            if (p == 0) {
+                current = of(ctx);
+            } else {
+                current = forName(ctx, exec.substring(0, p));
+            }
+            return current.get(exec.substring(p+1));
+        } else {
+            String sub = exec.substring(0, p);
+            p = sub.lastIndexOf('.');
+            ReflectedClass current;
+            if (p == 0) {
+                current = of(ctx);
+            } else {
+                current = forName(ctx, sub.substring(0, p));
+            }
+            return current.run(sub.substring(p+1));
+        }
     }
 
     private final Object object;
@@ -260,5 +294,20 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
                 iterator.remove();
             }
         };
+    }
+
+    public static abstract class Reflective {
+        private ReflectedClass reflectedClass;
+
+        public final ReflectedClass asReflectedClass() {
+            if (reflectedClass == null) {
+                this.reflectedClass = new ReflectedClass(this);
+            }
+            return reflectedClass;
+        }
+
+        public final ReflectedClass $(String exec) throws ReflectiveOperationException {
+            return ReflectedClass.$(this.getClass(), exec);
+        }
     }
 }

@@ -23,4 +23,9 @@ public class Tests {
     public void testEventCancel() throws Throwable {
         Env.getEnvMirror().testEventCancel();
     }
+
+    @Test
+    public void testReflectStaticExpr() throws Throwable {
+        Env.getEnvMirror().testReflectStaticExpr();
+    }
 }

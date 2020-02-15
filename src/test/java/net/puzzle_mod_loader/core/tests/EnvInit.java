@@ -40,4 +40,9 @@ public class EnvInit implements EnvMirror {
             throw new Error("TestEvent shouldn't be pass to Handler if canceled");
         }
     }
+
+    @Override
+    public void testReflectStaticExpr() throws Throwable {
+        ReflectTest.testReflectStaticExpr();
+    }
 }

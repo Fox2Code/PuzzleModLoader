@@ -29,12 +29,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.puzzle_mod_loader.utils.ReflectedClass;
 
 import java.io.File;
 import java.util.function.Supplier;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
-public abstract class Mod {
+public abstract class Mod extends ReflectedClass.Reflective {
     public static final boolean CLIENT = Launch.isClient();
     public static final boolean BUKKIT = Launch.isBukkit();
     public static final boolean DEV_ENV = "true".equalsIgnoreCase(System.getProperty("udk.startup.init"));
