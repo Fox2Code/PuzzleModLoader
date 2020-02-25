@@ -1,0 +1,22 @@
+apply plugin: 'udk.vanilla'
+repositories {
+    maven {
+        url 'https://repo.spongepowered.org/maven'
+    }
+}
+
+dependencies {
+    implementation 'org.ow2.asm:asm-commons:7.3.1'
+    implementation 'org.ow2.asm:asm-util:7.3.1'
+    implementation 'org.spongepowered:mixin:0.8'
+    implementation(project(':')) {
+        transitive = false
+    }
+}
+
+
+
+udk {
+    version = "20w07a"
+    main = "net.puzzle_mod_loader.launch.LaunchClient"
+}

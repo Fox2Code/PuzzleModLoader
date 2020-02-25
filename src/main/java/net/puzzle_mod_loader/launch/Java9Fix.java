@@ -1,6 +1,6 @@
 package net.puzzle_mod_loader.launch;
 
-import com.fox2code.udk.startup.Internal;
+import com.fox2code.udk.build.Internal;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;

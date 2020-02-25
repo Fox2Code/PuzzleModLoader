@@ -22,6 +22,7 @@ public class Wood implements CompactEntry {
         WoodType woodType;
         try {
             woodType = (WoodType) WoodType.newInstance0(type);
+            WoodType.run0("register", woodType);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }

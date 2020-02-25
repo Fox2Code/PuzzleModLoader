@@ -40,7 +40,9 @@ local.properties
 .scala_dependencies
 .worksheet
 /run/
+/snapshot/run/
 /logs/
+/snapshot/logs/
 .attach_pid*
 /gradle.properties
 /logs

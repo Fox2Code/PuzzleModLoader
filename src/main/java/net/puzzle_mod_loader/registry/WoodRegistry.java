@@ -1,12 +1,13 @@
 package net.puzzle_mod_loader.registry;
 
-import com.fox2code.udk.startup.Internal;
+import com.fox2code.udk.build.Internal;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.puzzle_mod_loader.core.ModLoader;
+import net.puzzle_mod_loader.utils.ReflectedClass;
 
 import java.awt.*;
 import java.util.*;
@@ -54,6 +55,9 @@ public class WoodRegistry {
                 .addBlock("slab", Blocks.ACACIA_SLAB).addBlock("stairs", Blocks.ACACIA_STAIRS)
                 .addBlock("button", Blocks.ACACIA_BUTTON)
         );
+        try {
+            ReflectedClass.$(WoodRegistry.class, "SRegistry.woodUpdate()");
+        } catch (Throwable ignored) {}
         providers = new HashMap<>();
     }
 

@@ -1,6 +1,6 @@
 package net.puzzle_mod_loader.client;
 
-import com.fox2code.udk.startup.Internal;
+import com.fox2code.udk.build.Internal;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.world.entity.Entity;

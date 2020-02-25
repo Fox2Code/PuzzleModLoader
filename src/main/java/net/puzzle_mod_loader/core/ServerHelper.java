@@ -1,6 +1,6 @@
 package net.puzzle_mod_loader.core;
 
-import com.fox2code.udk.startup.Internal;
+import com.fox2code.udk.build.Internal;
 import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
