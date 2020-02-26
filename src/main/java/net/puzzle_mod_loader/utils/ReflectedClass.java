@@ -97,6 +97,7 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
     }
 
     public ReflectedClass run(String name, Object... args) throws ReflectiveOperationException {
+        for (int i = 0;i < args.length;i++) if (args[i] instanceof ReflectedClass) args[i] = ((ReflectedClass) args[i]).getObject();
     	return ReflectedClass.of(run0(name, args));
     }
     

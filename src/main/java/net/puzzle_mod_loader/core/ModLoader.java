@@ -1,6 +1,7 @@
 package net.puzzle_mod_loader.core;
 
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.puzzle_mod_loader.core.mixin.MixinTransformer;
 import net.puzzle_mod_loader.helper.ModInfo;
 import net.puzzle_mod_loader.helper.ModList;
 import net.puzzle_mod_loader.registry.WoodRegistry;
@@ -85,6 +86,8 @@ public class ModLoader {
             } else if (DEV_MODE || inject != null) {
                 throw new Error(DEV_MODE?"DevMode is false with inject":"Inject while not in dev-mode");
             }
+            ModLoader.LOGGER.info("Reloading Mixins...");
+            MixinTransformer.forceReload();
             LOGGER.info(cachedData.size()+" mods loaded!");
         }
     }

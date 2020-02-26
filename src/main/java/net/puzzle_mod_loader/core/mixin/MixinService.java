@@ -5,6 +5,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.launch.platform.container.ContainerHandleVirtual;
 import org.spongepowered.asm.launch.platform.container.IContainerHandle;
+import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.service.*;
 
 import java.io.IOException;
@@ -129,5 +130,10 @@ public class MixinService extends MixinServiceAbstract implements IMixinService,
     @Override
     public String getClassRestrictions(String className) {
         return "";
+    }
+
+    @Override
+    public MixinEnvironment.Phase getInitialPhase() {
+        return MixinEnvironment.Phase.INIT;
     }
 }
