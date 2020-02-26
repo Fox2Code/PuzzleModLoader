@@ -1,6 +1,10 @@
 # PuzzleModLoader
 PuzzleModLoader is currently in development
 
+## Discuss
+
+Discord: [https://discord.gg/KSa4nJQ](https://discord.gg/KSa4nJQ)
+
 ## Contribution
 
 ### Issues
