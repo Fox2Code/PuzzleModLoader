@@ -102,7 +102,7 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
                 for (ClassTransformer classTransformer : classTransformers) {
                     try {
                         bytes = classTransformer.transform(bytes, tmpName);
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         Files.write(new File(Launch.getHomeDir(), "transform_fail.class").toPath(), bytes);
                         throw new ClassTransformException("Can't transform "+name+" for "+classTransformer.getClass().getName(), e);
                     }
@@ -130,10 +130,13 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
             clas = defineClass(name,bytes,0,bytes.length,url == null ? null : new CodeSource(url,new CodeSigner[]{}));
             Launch.lastLoadedClass = System.currentTimeMillis();
             return clas;
-        } catch (ClassFormatError | ClassTransformException ioe) {
+        } catch (ClassFormatError ioe) {
             if (bytes != null) try {
                 Files.write(new File(Launch.getHomeDir(), "load_fail.class").toPath(), bytes);
             } catch (IOException ignored) {}
+            throw new ClassNotFoundException(name, ioe);
+        } catch (ClassTransformException ioe) {
+            ioe.printStackTrace();
             throw new ClassNotFoundException(name, ioe);
         } catch (Exception ioe) {
             throw new ClassNotFoundException(name, ioe);
@@ -216,6 +219,10 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
         classTransformers.add(classTransformer);
     }
 
+    public int getClassTransformersCount() {
+        return classTransformers.size();
+    }
+
     public void addTransformerExclusion(String exclusion) {
         exclusions.add(exclusion);
     }
@@ -229,7 +236,7 @@ public final class PuzzleClassLoader extends URLClassLoader implements Opcodes {
     }
 
     private static class ClassTransformException extends Exception {
-        public ClassTransformException(String message, Exception e) {
+        public ClassTransformException(String message, Throwable e) {
             super(message, e);
         }
     }

@@ -51,6 +51,9 @@ public class Launch {
         classLoader.addTransformerExclusion("org.spongepowered.asm.mixin.");
         Thread.currentThread().setContextClassLoader(classLoader);
         classLoader.loadClass("net.puzzle_mod_loader.core.mixin.MixinTransformer").getDeclaredMethod("init0").invoke(null);
+        if (classLoader.getClassTransformersCount() != 2) {
+            throw new Error("No Mixin Loaded!");
+        }
         classLoader.addClassTransformers(new RegistryTransformer());
         classLoader.addClassTransformers(new DataPackTransformer());
         classLoader.addClassTransformers(new ServerTransformer());

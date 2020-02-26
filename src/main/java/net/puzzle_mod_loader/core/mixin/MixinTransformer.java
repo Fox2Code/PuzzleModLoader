@@ -12,9 +12,12 @@ import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
 import org.spongepowered.asm.service.ISyntheticClassInfo;
 import org.spongepowered.asm.service.ISyntheticClassRegistry;
 
+import javax.swing.*;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.nio.file.Files;
 
 
 public class MixinTransformer implements ClassTransformer {
@@ -38,8 +41,7 @@ public class MixinTransformer implements ClassTransformer {
         MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.DISABLE_REFMAP, true);
         //MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.IGNORE_REQUIRED, true);
         MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.DEBUG_INJECTORS, true);
-        if (new File(ModLoader.class
-                .getProtectionDomain().getCodeSource().getLocation().getFile()).isDirectory()) {
+        if (isDev()) {
             MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.DEBUG_ALL, true);
         }
         MixinEnvironment.getCurrentEnvironment().setSide(Launch.isClient() ? MixinEnvironment.Side.CLIENT : MixinEnvironment.Side.SERVER);
@@ -55,11 +57,42 @@ public class MixinTransformer implements ClassTransformer {
         }
     }
 
+    private static boolean isDev() {
+        try {
+            return new File(ModLoader.class
+                    .getProtectionDomain().getCodeSource().getLocation().getFile()).isDirectory();
+        } catch (NullPointerException npe) {
+            return true;
+        }
+    }
+
     @Override
     public byte[] transform(byte[] bytes, String className) {
         if (className.startsWith("org.apache.logging.log4j.") || className.startsWith("net.puzzle_mod_loader.event.") ||
                 className.startsWith("it.unimi.dsi.fastutil.")) {
             return bytes;
+        }
+
+        ModLoader.LOGGER.info(className);
+
+        if (className.equals("net.puzzle_mod_loader.tests.MixinTest")) {
+
+            ModLoader.LOGGER.info("V2");
+
+            byte[] bytesMod = mixinTransformer.transformClassBytes(className, className, bytes);
+
+            if (bytes == bytesMod) {
+                throw new Error("Test Not Patched!");
+            }
+
+            try {
+                Files.write(new File("./test_in.class").toPath(), bytes);
+                Files.write(new File("./test_out.class").toPath(), bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return bytesMod;
         }
 
         return mixinTransformer.transformClassBytes(className, className, bytes);

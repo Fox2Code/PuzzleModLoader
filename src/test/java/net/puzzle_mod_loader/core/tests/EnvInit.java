@@ -1,5 +1,6 @@
 package net.puzzle_mod_loader.core.tests;
 
+import net.puzzle_mod_loader.core.ModLoader;
 import net.puzzle_mod_loader.event.tests.TestEvent;
 import net.puzzle_mod_loader.events.EventManager;
 import net.puzzle_mod_loader.launch.tests.Env;
@@ -51,6 +52,7 @@ public class EnvInit implements EnvMirror {
     @Override
     public void testMixin() throws Throwable {
         Mixins.addConfiguration("mixins.puzzle.tests.json");
+        ModLoader.LOGGER.info("Test");
         MixinTest.test();
     }
 }

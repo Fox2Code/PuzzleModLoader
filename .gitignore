@@ -52,3 +52,5 @@ local.properties
 /transform_fail.class
 /gen_fail.class
 /compute_fail.class
+/test_in.class
+/test_out.class
