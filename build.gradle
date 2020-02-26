@@ -53,13 +53,20 @@ finalJar.dependsOn(":snapshot:compileJava")
 finalJar.dependsOn(processResources)
 finalJar.from(sourceSets.main.output)
 
+Jar finalSourcesJar = tasks.register("finalSourcesJar", Jar).get()
+finalSourcesJar.archiveClassifier.set("sources")
+finalSourcesJar.archiveBaseName.set(jar.archiveBaseName.getOrNull())
+finalSourcesJar.archiveVersion.set(jar.archiveVersion.getOrNull())
+finalSourcesJar.manifest = jar.manifest
+finalSourcesJar.from sourceSets.main.allSource
 
 project(":snapshot").afterEvaluate {
     finalJar.from(project(":snapshot").sourceSets.main.output)
+    finalSourcesJar.from(project(":snapshot").sourceSets.main.allSource)
 }
 
 (build.getTaskDependencies() as DefaultTaskDependency).getMutableValues().clear()
-build.dependsOn(finalJar, test)
+build.dependsOn(finalJar, finalSourcesJar, test)
 
 // Shortcut for dev
 tasks.register("runClientSnapshot").get().dependsOn(":snapshot:runClient")

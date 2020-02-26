@@ -103,12 +103,12 @@ public class MixinService extends MixinServiceAbstract implements IMixinService,
 
     @Override
     public Collection<ITransformer> getTransformers() {
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
     public Collection<ITransformer> getDelegatedTransformers() {
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
@@ -128,6 +128,6 @@ public class MixinService extends MixinServiceAbstract implements IMixinService,
 
     @Override
     public String getClassRestrictions(String className) {
-        return null;
+        return "";
     }
 }

@@ -11,7 +11,7 @@ public class Env {
         if (envMirror != null) {
             return envMirror;
         }
-        Launch.home = new File("");
+        Launch.home = new File(".").getAbsoluteFile();
         Launch.initCore(false);
         Launch.getClassLoader().loadClass("net.puzzle_mod_loader.core.tests.EnvInit").getDeclaredMethod("init").invoke(null);
         return envMirror;

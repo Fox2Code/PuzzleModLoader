@@ -1,10 +1,10 @@
 {
   "minVersion": "0.8",
-  "package": "net.puzzle_mod_loader.core.mixins",
+  "package": "net.puzzle_mod_loader.core.tests.mixins",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "TestMixin"
   ],
   "client": [
-    "EntityRendererMixin"
   ]
 }

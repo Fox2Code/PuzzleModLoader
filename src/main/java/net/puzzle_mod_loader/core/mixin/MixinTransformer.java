@@ -1,13 +1,21 @@
 package net.puzzle_mod_loader.core.mixin;
 
+import net.puzzle_mod_loader.core.ModLoader;
 import net.puzzle_mod_loader.launch.ClassTransformer;
 import net.puzzle_mod_loader.launch.Java9Fix;
 import net.puzzle_mod_loader.launch.Launch;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
+import org.spongepowered.asm.service.ISyntheticClassInfo;
+import org.spongepowered.asm.service.ISyntheticClassRegistry;
 
+import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
+
 
 public class MixinTransformer implements ClassTransformer {
     static MixinTransformer mixinTransformerINSTANCE;
@@ -23,23 +31,37 @@ public class MixinTransformer implements ClassTransformer {
     public static void init0() {}
 
     IMixinTransformer mixinTransformer;
+    ISyntheticClassRegistry registry;
 
     private MixinTransformer() throws ReflectiveOperationException {
         MixinBootstrap.init();
-        MixinEnvironment.init(MixinEnvironment.Phase.DEFAULT);
         MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.DISABLE_REFMAP, true);
-        MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.IGNORE_REQUIRED, true);
+        //MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.IGNORE_REQUIRED, true);
         MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.DEBUG_INJECTORS, true);
+        if (new File(ModLoader.class
+                .getProtectionDomain().getCodeSource().getLocation().getFile()).isDirectory()) {
+            MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.DEBUG_ALL, true);
+        }
         MixinEnvironment.getCurrentEnvironment().setSide(Launch.isClient() ? MixinEnvironment.Side.CLIENT : MixinEnvironment.Side.SERVER);
-        Constructor<? extends IMixinTransformer> mixinTransformerConstructor =
+        MixinBootstrap.getPlatform().inject();
+        MixinEnvironment.init(MixinEnvironment.Phase.DEFAULT);
+        mixinTransformer = (IMixinTransformer) MixinEnvironment.getCurrentEnvironment().getActiveTransformer();
+        if (mixinTransformer == null) {
+            Constructor<? extends IMixinTransformer> mixinTransformerConstructor =
                 Class.forName("org.spongepowered.asm.mixin.transformer.MixinTransformer")
                         .asSubclass(IMixinTransformer.class).getConstructor();
-        Java9Fix.setAccessible(mixinTransformerConstructor);
-        mixinTransformer = mixinTransformerConstructor.newInstance();
+            Java9Fix.setAccessible(mixinTransformerConstructor);
+            mixinTransformer = mixinTransformerConstructor.newInstance();
+        }
     }
 
     @Override
     public byte[] transform(byte[] bytes, String className) {
+        if (className.startsWith("org.apache.logging.log4j.") || className.startsWith("net.puzzle_mod_loader.event.") ||
+                className.startsWith("it.unimi.dsi.fastutil.")) {
+            return bytes;
+        }
+
         return mixinTransformer.transformClassBytes(className, className, bytes);
     }
 }

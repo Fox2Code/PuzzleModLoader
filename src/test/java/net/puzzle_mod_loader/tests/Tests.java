@@ -28,4 +28,10 @@ public class Tests {
     public void testReflectStaticExpr() throws Throwable {
         Env.getEnvMirror().testReflectStaticExpr();
     }
+
+
+    @Test
+    public void testMixin() throws Throwable {
+        Env.getEnvMirror().testMixin();
+    }
 }

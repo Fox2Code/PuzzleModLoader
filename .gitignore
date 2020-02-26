@@ -48,3 +48,7 @@ local.properties
 /logs
 .mixin.out
 !/src
+/load_fail.class
+/transform_fail.class
+/gen_fail.class
+/compute_fail.class

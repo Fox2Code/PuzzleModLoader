@@ -67,7 +67,7 @@ public class ModLoader {
                 if (file.isFile() && file.getName().endsWith(".jar")) {
                     try {
                         loadMod(file, false);
-                    } catch (IOException e) {
+                    } catch (IOException|ClassNotFoundException e) {
                         System.err.println("Unable to load "+file.getName());
                         e.printStackTrace();
                     }
@@ -77,11 +77,13 @@ public class ModLoader {
                 LOGGER.info("Loading injected mod...");
                 try {
                     loadMod(new File(inject), true);
-                } catch (IOException e) {
+                } catch (IOException|ClassNotFoundException e) {
                     System.err.println("Unable to load injected mod");
                     e.printStackTrace();
                     throw new Error(e);
                 }
+            } else if (DEV_MODE || inject != null) {
+                throw new Error(DEV_MODE?"DevMode is false with inject":"Inject while not in dev-mode");
             }
             LOGGER.info(cachedData.size()+" mods loaded!");
         }
@@ -93,13 +95,14 @@ public class ModLoader {
         init = true;
         LOGGER.info("Building mods...");
         int i = 0;
-        for (String[] modMeta:cachedData.values()) {
+        for (String[] modMeta:cachedData.values().toArray(new String[0][])) {
             if (modMeta[1] != null) try {
                 mods.put(modMeta[1], Class.forName(modMeta[0]).asSubclass(Mod.class).newInstance());
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        cachedData.clear();
         final boolean client = Launch.isClient();
         LOGGER.info("Initialising mods...");
         for (Mod mod:getMods()) {
@@ -122,7 +125,7 @@ public class ModLoader {
         LOGGER.info("All mods were initialised!");
     }
 
-    static void loadMod(File file,boolean dev) throws IOException {
+    static void loadMod(File file,boolean dev) throws IOException, ClassNotFoundException {
         String[] metaData = new String[6];
         metaData[5] = dev?"":HashUtil.md5sha1(Files.readAllBytes(file.toPath()));
         JarFile jarFile = new JarFile(file);
@@ -130,7 +133,7 @@ public class ModLoader {
         metaData[0] = attributes.getValue(MOD_MAIN);
         metaData[1] = attributes.getValue(MOD_ID);
         if (metaData[1] == null || metaData[1].isEmpty()) throw new IllegalArgumentException("ModId not found in "+file.getName()+" !");
-        if (!metaData[1].toLowerCase(Locale.ENGLISH).equals(metaData[1]) || metaData[1].equals("puzzle") || metaData[1].equals("minecraft")) {
+        if (!metaData[1].toLowerCase(Locale.ENGLISH).equals(metaData[1]) || metaData[1].equals("puzzle") || metaData[1].equals("minecraft") || (metaData[1].equals("examplemod") && !(DEV_MODE && dev))) {
             throw new IllegalArgumentException("\"" + metaData[1] + "\" is an invalid modId!");
         }
         metaData[2] = attributes.getValue(MOD_NAME);
@@ -138,7 +141,8 @@ public class ModLoader {
         metaData[3] = attributes.getValue(MOD_VERSION);
         if (metaData[3] == null) metaData[3] = "1.0-dev";
         metaData[4] = attributes.getValue(MOD_HOOK);
-        cachedData.put(file.toURI().toURL(), metaData);
+        cachedData.put(dev? Class.forName(metaData[4] != null ? metaData[4] : metaData[0], false, ModLoader.class.getClassLoader()).getProtectionDomain().getCodeSource().getLocation()
+                : file.toURI().toURL(), metaData);
         if (!dev) {
             Launch.getClassLoader().addURL(file.toURI().toURL());
         }
@@ -147,7 +151,7 @@ public class ModLoader {
         }
         if (metaData[4] != null) {
             try {
-                Class.forName(metaData[4]).getDeclaredMethod("hook", boolean.class).invoke(null, Launch.isClient());
+                Class.forName(metaData[4]).getDeclaredMethod("hook").invoke(null);
             } catch (Exception e) {
                 e.printStackTrace();
             }

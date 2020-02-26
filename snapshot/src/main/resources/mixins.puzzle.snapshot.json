@@ -1,4 +1,5 @@
 {
+  "minVersion": "0.8",
   "package": "net.puzzle_mod_loader.core.snapshot.mixins",
   "compatibilityLevel": "JAVA_8",
   "mixins": [

@@ -4,6 +4,8 @@ import net.puzzle_mod_loader.event.tests.TestEvent;
 import net.puzzle_mod_loader.events.EventManager;
 import net.puzzle_mod_loader.launch.tests.Env;
 import net.puzzle_mod_loader.launch.tests.EnvMirror;
+import net.puzzle_mod_loader.tests.MixinTest;
+import org.spongepowered.asm.mixin.Mixins;
 
 public class EnvInit implements EnvMirror {
     private Handler handler = null;
@@ -44,5 +46,11 @@ public class EnvInit implements EnvMirror {
     @Override
     public void testReflectStaticExpr() throws Throwable {
         ReflectTest.testReflectStaticExpr();
+    }
+
+    @Override
+    public void testMixin() throws Throwable {
+        Mixins.addConfiguration("mixins.puzzle.tests.json");
+        MixinTest.test();
     }
 }
