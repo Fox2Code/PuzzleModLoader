@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.file.Files;
-import java.util.Iterator;
 
 public class MixinTransformer implements ClassTransformer {
     private static final boolean ABUSE_LOGGER = false; // If you need to breaks Mixins
@@ -106,25 +105,31 @@ public class MixinTransformer implements ClassTransformer {
     }
 
     public static void forceReload() {
-        MixinEnvironment.getCurrentEnvironment().setSide(Launch.isClient() ? MixinEnvironment.Side.CLIENT : MixinEnvironment.Side.SERVER);
         try {
-            Iterator<Config> configIterator = Mixins.getConfigs().iterator();
-            while (configIterator.hasNext()) {
-                ReflectedClass configHandle = ReflectedClass.of(configIterator.next()).run("get");
-                try {
-                    if (FORCE_DOT) {
-                        String mixinPackage = configHandle.get("mixinPackage").asString();
-                        if (!mixinPackage.endsWith(".")) {
-                            configHandle.set("mixinPackage", mixinPackage + ".");
+            boolean pass = false;
+            do {
+                Config[] configs = Mixins.getConfigs().toArray(new Config[0]);
+                Mixins.getConfigs().clear();
+                for (Config config:configs) {
+                    ReflectedClass configHandle = ReflectedClass.of(config).run("get");
+                    try {
+                        if (FORCE_DOT) {
+                            String mixinPackage = configHandle.get("mixinPackage").asString();
+                            if (!mixinPackage.endsWith(".")) {
+                                configHandle.set("mixinPackage", mixinPackage + ".");
+                            }
                         }
+                        configHandle.set0("env", MixinEnvironment.getCurrentEnvironment());
+                        configHandle.run0("onSelect");
+                        configHandle.run0("prepare");
+                        INSTANCE.configs.run0("add", configHandle.getHandle());
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
                     }
-                    configHandle.run0("onSelect");
-                    configHandle.run0("prepare");
-                    INSTANCE.configs.run0("add", configHandle.getHandle());
-                } catch (Throwable throwable) {
-                    throwable.printStackTrace();
                 }
-                configIterator.remove();
+            } while (!pass && !Mixins.getConfigs().isEmpty() && (pass = true));
+            if (!Mixins.getConfigs().isEmpty()) {
+                ModLoader.LOGGER.warn("Mixin configs still exists after 2 pass: "+Mixins.getConfigs().toString());
             }
         } catch (Throwable throwable) {
             throwable.printStackTrace();
