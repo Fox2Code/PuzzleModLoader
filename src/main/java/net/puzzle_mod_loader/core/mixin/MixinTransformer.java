@@ -16,11 +16,10 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.util.Iterator;
-import java.util.List;
-
 
 public class MixinTransformer implements ClassTransformer {
-    private static final boolean ABUSE_LOGGER = true;
+    private static final boolean ABUSE_LOGGER = false; // If you need to breaks Mixins
+    private static final boolean FORCE_DOT = true; // Fix dot for Mixins
 
     static MixinTransformer INSTANCE;
 
@@ -40,7 +39,7 @@ public class MixinTransformer implements ClassTransformer {
     private MixinTransformer() throws ReflectiveOperationException {
         MixinBootstrap.init();
         MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.DISABLE_REFMAP, true);
-        //MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.IGNORE_REQUIRED, true);
+        MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.IGNORE_REQUIRED, true);
         MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.DEBUG_INJECTORS, true);
         if (isDev()) {
             MixinEnvironment.getCurrentEnvironment().setOption(MixinEnvironment.Option.DEBUG_VERBOSE, true);
@@ -107,10 +106,24 @@ public class MixinTransformer implements ClassTransformer {
     }
 
     public static void forceReload() {
+        MixinEnvironment.getCurrentEnvironment().setSide(Launch.isClient() ? MixinEnvironment.Side.CLIENT : MixinEnvironment.Side.SERVER);
         try {
             Iterator<Config> configIterator = Mixins.getConfigs().iterator();
             while (configIterator.hasNext()) {
-                INSTANCE.configs.run0("add", ReflectedClass.of(configIterator.next()).run0("get"));
+                ReflectedClass configHandle = ReflectedClass.of(configIterator.next()).run("get");
+                try {
+                    if (FORCE_DOT) {
+                        String mixinPackage = configHandle.get("mixinPackage").asString();
+                        if (!mixinPackage.endsWith(".")) {
+                            configHandle.set("mixinPackage", mixinPackage + ".");
+                        }
+                    }
+                    configHandle.run0("onSelect");
+                    configHandle.run0("prepare");
+                    INSTANCE.configs.run0("add", configHandle.getHandle());
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
                 configIterator.remove();
             }
         } catch (Throwable throwable) {

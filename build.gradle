@@ -69,7 +69,27 @@ project(":snapshot").afterEvaluate {
 build.dependsOn(finalJar, finalSourcesJar, test)
 
 // Shortcut for dev
-tasks.register("runClientSnapshot").get().dependsOn(":snapshot:runClient")
-tasks.register("runClientSnapshotJar").get().dependsOn(":snapshot:runClientJar")
-tasks.register("runServerSnapshot").get().dependsOn(":snapshot:runServer")
-tasks.register("runServerSnapshotJar").get().dependsOn(":snapshot:runServerJar")
+tasks.register("runClientSnapshot") {
+    group = "PuzzleDev"
+}.get().dependsOn(":snapshot:runClient")
+tasks.register("runClientSnapshotJar") {
+    group = "PuzzleDev"
+}.get().dependsOn(":snapshot:runClientJar")
+tasks.register("runServerSnapshot") {
+    group = "PuzzleDev"
+}.get().dependsOn(":snapshot:runServer")
+tasks.register("runServerSnapshotJar") {
+    group = "PuzzleDev"
+}.get().dependsOn(":snapshot:runServerJar")
+tasks.register("runClientRelease") {
+    group = "PuzzleDev"
+}.get().dependsOn(":runClient")
+tasks.register("runClientReleaseJar") {
+    group = "PuzzleDev"
+}.get().dependsOn(":runClientJar")
+tasks.register("runServerRelease") {
+    group = "PuzzleDev"
+}.get().dependsOn(":runServer")
+tasks.register("runServerReleaseJar") {
+    group = "PuzzleDev"
+}.get().dependsOn(":runServerJar")

@@ -62,7 +62,7 @@ public class ClientHandler {
         if (!this.preCall) {
             this.preCall = true;
             PreLoader.preloadAsync();
-            new Throwable().printStackTrace();
+            //new Throwable().printStackTrace();
         }
         if (!DEBUG_UI) {
             return;

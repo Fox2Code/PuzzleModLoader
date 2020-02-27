@@ -95,7 +95,7 @@ public class MixinService extends MixinServiceAbstract implements IMixinService,
     @Override
     public ClassNode getClassNode(String name, boolean runTransformers) throws ClassNotFoundException, IOException {
         ClassNode classNode = new ClassNode();
-        InputStream is = Launch.getClassLoader().getResourceAsStream(name + ".class");
+        InputStream is = Launch.getClassLoader().getResourceAsStream(name.replace('.', '/') + ".class");
         if (is == null) throw new ClassNotFoundException(name);
         new ClassReader(is).accept(classNode, 0);
         Launch.compactTransformer.patchClassNode(classNode);
