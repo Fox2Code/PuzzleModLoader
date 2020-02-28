@@ -3,18 +3,16 @@ package net.puzzle_mod_loader.utils.chat;
 
 
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.puzzle_mod_loader.compact.ClientOnly;
-import net.puzzle_mod_loader.utils.ClientUtils;
-import net.puzzle_mod_loader.utils.color.ColorUtil;
+//import net.minecraft.ChatFormatting;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/*
+ * FNURFY BUG IS DETECTED §§§§§§ Caused by REPACKER () !
+ */
 public class ChatUtil {
 
     private static Pattern pattern;
@@ -35,18 +33,18 @@ public class ChatUtil {
         return true;
     }
 
-    @ClientOnly
+    /*@ClientOnly
     public static void sendMessage(String message) {
         if (ClientUtils.world() != null && ClientUtils.player() != null) {
             ClientUtils.player().sendMessage(makeComponent(message));
         }
-    }
+    }*/
 
     public static String addFormat(final String message, final String regex) {
         return message.replaceAll("(?i)" + regex + "([0-9a-fklmnor])", "§$1");
     }
 
-    private static TextComponent makeComponent(String message) {
+    /*private static TextComponent makeComponent(String message) {
         message = message.replaceAll("\t", "    ");
         for (final String key : ColorUtil.colors.keySet()) {
             final ChatColor c = ColorUtil.colors.get(key);
@@ -99,15 +97,15 @@ public class ChatUtil {
             }
         }
         return icc;
-    }
+    }*/
 
-    public static ChatFormatting charToFormat(final char c) {
+    /*public static ChatFormatting charToFormat(final char c) {
         ChatFormatting[] values;
         for (int length = (values = ChatFormatting.values()).length, i = 0; i < length; ++i) {
             final ChatFormatting ecf = values[i];
         }
         return ChatFormatting.RESET;
-    }
+    }*/
 
     public static boolean isValidEmail(String line) {
         for(char c : line.toCharArray()) {
