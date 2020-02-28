@@ -1,9 +1,19 @@
-package net.puzzle_mod_loader.utils;
+package net.puzzle_mod_loader.utils.color;
+
+import net.puzzle_mod_loader.utils.chat.ChatColor;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ColorUtil
 {
+
+    public static Map<String, ChatColor> colors;
+
+    static {
+        ColorUtil.colors = new HashMap<String, ChatColor>();
+    }
 
     public static int transparency(final int color, final double alpha) {
         final Color c = new Color(color);

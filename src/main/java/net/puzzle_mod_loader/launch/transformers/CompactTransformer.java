@@ -36,13 +36,22 @@ public class CompactTransformer implements ClassTransformer {
                     }
                 }
                 if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/OptionalInterfaces;")) {
-                    classNode.interfaces.removeIf(s -> !Launch.hasClass(s));
+                    if (classNode.interfaces != null) {
+                        classNode.interfaces.removeIf(s -> !Launch.hasClass(s));
+                    }
                 }
                 if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Implement;")) {
                     if (classNode.interfaces == null) {
                         classNode.interfaces = new ArrayList<>();
                     }
                     classNode.interfaces.add(annotationNode.values.get(0).toString());
+                }
+                if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/ClientOnly;")) {
+                    classNode.innerClasses.clear();
+                    classNode.methods.clear();
+                    classNode.fields.clear();
+                    classNode.interfaces = null;
+                    classNode.superName = "java/lang/Object";
                 }
             }
         }
