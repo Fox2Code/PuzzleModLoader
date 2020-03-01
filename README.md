@@ -1,7 +1,7 @@
 # PuzzleModLoader
 PuzzleModLoader is currently in development
 
-## Discuss
+Website: [https://puzzle-mod-loader.net](https://puzzle-mod-loader.net)
 
 Discord: [https://discord.gg/KSa4nJQ](https://discord.gg/KSa4nJQ)
 
