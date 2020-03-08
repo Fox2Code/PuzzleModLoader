@@ -1,6 +1,7 @@
 package net.puzzle_mod_loader.core;
 
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.puzzle_mod_loader.compact.MC;
 import net.puzzle_mod_loader.core.mixin.MixinTransformer;
 import net.puzzle_mod_loader.helper.ModInfo;
 import net.puzzle_mod_loader.helper.ModList;
@@ -60,6 +61,7 @@ public class ModLoader {
     }
 
     static void loadMods() {
+        LOGGER.info("Minecraft API "+ MC.CURRENT);
         if (!modsFolder.exists()) {
             modsFolder.mkdirs();
         } else {

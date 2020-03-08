@@ -80,6 +80,11 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
         return this.object;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T $() {
+        return (T) this.object;
+    } // For shorter code
+
     public ReflectedClass get(String name) throws ReflectiveOperationException {
         return ReflectedClass.of(get0(name));
     }

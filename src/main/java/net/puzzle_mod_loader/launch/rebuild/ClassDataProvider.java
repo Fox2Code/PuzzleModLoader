@@ -1,8 +1,10 @@
 package net.puzzle_mod_loader.launch.rebuild;
 
+import net.puzzle_mod_loader.launch.Launch;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.tree.ClassNode;
 
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -210,8 +212,11 @@ public class ClassDataProvider {
         clData = new ClData2(clName);
         try {
             ClassReader classReader = new ClassReader(Objects.requireNonNull(this.classLoader.getResourceAsStream(clName + ".class")));
+            ClassNode classNode = new ClassNode();
+            classReader.accept(classNode, ClassReader.SKIP_CODE);
+            Launch.compactTransformer.patchClassNode(classNode);
             final ClData2 tClData = (ClData2) clData;
-            classReader.accept(new ClassVisitor(ASM7) {
+            classNode.accept(new ClassVisitor(ASM7) {
                 @Override
                 public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
                     tClData.access = access;
@@ -220,7 +225,7 @@ public class ClassDataProvider {
                         tClData.interfaces = Arrays.asList(interfaces);
                     }
                 }
-            }, ClassReader.SKIP_CODE);
+            });
         } catch (Exception e) {
             if (debugClassResolution) {
                 System.out.println("DEBUG: Failed to resolve -> "+clName);

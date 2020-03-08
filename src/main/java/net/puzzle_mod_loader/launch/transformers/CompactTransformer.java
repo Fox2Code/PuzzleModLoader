@@ -47,11 +47,13 @@ public class CompactTransformer implements ClassTransformer {
                     classNode.interfaces.add(annotationNode.values.get(0).toString());
                 }
                 if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/ClientOnly;")) {
-                    classNode.innerClasses.clear();
-                    classNode.methods.clear();
-                    classNode.fields.clear();
-                    classNode.interfaces = null;
-                    classNode.superName = "java/lang/Object";
+                    if (!CLIENT) {
+                        classNode.innerClasses.clear();
+                        classNode.methods.clear();
+                        classNode.fields.clear();
+                        classNode.interfaces = null;
+                        classNode.superName = "java/lang/Object";
+                    }
                 }
             }
         }
@@ -63,6 +65,7 @@ public class CompactTransformer implements ClassTransformer {
                 classNode.methods.clear();
             }
         }
+        boolean isMC = classNode.name.startsWith("net/minecraft/");
         if (classNode.methods != null) {
             Iterator<MethodNode> methodIterator = classNode.methods.iterator();
             methods:
@@ -98,6 +101,10 @@ public class CompactTransformer implements ClassTransformer {
                                 methodIterator.remove();
                                 continue methods;
                             }
+                        }
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Super;")) {
+                            methodIterator.remove();
+                            continue methods;
                         }
                         if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Constructor;")) {
                             String desc;
@@ -137,7 +144,7 @@ public class CompactTransformer implements ClassTransformer {
                         }
                     }
                 }
-                if (methodNode.name.equals("<init>")) {
+                if (isMC || methodNode.name.equals("<init>")) {
                     methodNode.access = (methodNode.access&~(ACC_PRIVATE|ACC_PROTECTED))|ACC_PUBLIC;
                 }
             }
@@ -172,6 +179,10 @@ public class CompactTransformer implements ClassTransformer {
                                 fieldsIterator.remove();
                                 continue fields;
                             }
+                        }
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Super;")) {
+                            fieldsIterator.remove();
+                            continue fields;
                         }
                     }
                 }
