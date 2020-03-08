@@ -311,7 +311,7 @@ public abstract class Mod extends ReflectedClass.Reflective {
         } else {
             this.registerDrop(BLOCK);
         }
-        this.registerFurnaceRecipe(BLOCK, drop);
+        this.registerFurnaceRecipe(BLOCK, drop, (minXP+maxXP)/2F);
         return BLOCK;
     }
 
@@ -704,7 +704,7 @@ public abstract class Mod extends ReflectedClass.Reflective {
     }
 
     public final void registerFurnaceRecipe(ItemLike from,ItemLike to) {
-        this.registerFurnaceRecipe(from, to, 0);
+        this.registerFurnaceRecipe(from, to, 0F);
     }
 
     public final void registerFurnaceRecipe(ItemLike from,ItemLike to,float xp) {
