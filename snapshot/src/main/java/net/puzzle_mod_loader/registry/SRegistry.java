@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class SRegistry {
     public static void woodUpdate() {
-        if (MC.CURRENT >= 705) {//701 = 20w10a
+        if (MC.CURRENT >= 705) {//705 = 20w10a
             WoodRegistry.woodHashMap.put("crimson", new Wood("crimson", WoodType.CRIMSON, Blocks.CRIMSON_STEM, Blocks.CRIMSON_PLANKS, Blocks.NETHER_WART_BLOCK,
                     Blocks.CRIMSON_FUNGUS, Blocks.STRIPPED_CRIMSON_STEM, new Color(126, 58, 86))
                     .addBlock("fence", Blocks.CRIMSON_FENCE).addBlock("gate", Blocks.CRIMSON_FENCE_GATE)
