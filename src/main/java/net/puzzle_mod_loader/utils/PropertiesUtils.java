@@ -5,23 +5,19 @@ import net.minecraft.world.level.block.SoundType;
 
 public class PropertiesUtils {
     public static Block.Properties sound(Block.Properties properties, SoundType soundType) {
-        try {
-            ReflectedClass.of(properties).set("sound", soundType);
-        } catch (Exception ignored) {}
-        return properties;
+        return properties.sound(soundType);
     }
 
     public static Block.Properties lightLevel(Block.Properties properties, int lightEmission) {
-        try {
-            ReflectedClass.of(properties).set("lightEmission", lightEmission);
-        } catch (Exception ignored) {}
-        return properties;
+        return properties.lightLevel(lightEmission);
+    }
+
+    public static Block.Properties jumpFactor(Block.Properties properties, float jumpFactor) {
+        return properties.jumpFactor(jumpFactor);
     }
 
     public static Block.Properties randomTicks(Block.Properties properties) {
-        try {
-            ReflectedClass.of(properties).set("isTicking", true);
-        } catch (Exception ignored) {}
+        properties.isTicking = true;
         return properties;
     }
 }

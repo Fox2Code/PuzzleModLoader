@@ -14,7 +14,8 @@ public class CustomOreBlock extends OreBlock {
         this.maxXP = maxXP;
     }
 
-    protected int xpOnDrop(Random var1) {
+    @Override
+    public int xpOnDrop(Random var1) {
         return Mth.nextInt(var1, minXP, maxXP);
     }
 }

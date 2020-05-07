@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 public class CompactTransformer implements ClassTransformer {
     private static final boolean CLIENT = Launch.isClient();
+    private static final int MASK = ~(ACC_PROTECTED|ACC_PRIVATE|ACC_FINAL);
 
     @Override
     public byte[] transform(byte[] bytes, String className) {
@@ -25,14 +26,11 @@ public class CompactTransformer implements ClassTransformer {
     }
 
     public void patchClassNode(ClassNode classNode) {
-        if ((classNode.access&ACC_INTERFACE) != 0) {
-            classNode.access = (classNode.access&~(ACC_PRIVATE|ACC_PROTECTED))|ACC_PUBLIC;
-        }
-        if (classNode.invisibleTypeAnnotations != null) {
-            for (TypeAnnotationNode annotationNode : classNode.invisibleTypeAnnotations) {
+        if (classNode.invisibleAnnotations != null) {
+            for (AnnotationNode annotationNode : classNode.invisibleAnnotations) {
                 if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/FallbackSuperclass;")) {
                     if (!Launch.hasClass(classNode.superName)) {
-                        classNode.superName = ((Type) annotationNode.values.get(0)).getDescriptor();
+                        classNode.superName = ASMUtil.getTypeVal(annotationNode).getDescriptor();
                     }
                 }
                 if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/OptionalInterfaces;")) {
@@ -44,7 +42,7 @@ public class CompactTransformer implements ClassTransformer {
                     if (classNode.interfaces == null) {
                         classNode.interfaces = new ArrayList<>();
                     }
-                    classNode.interfaces.add(annotationNode.values.get(0).toString());
+                    classNode.interfaces.add(ASMUtil.getStrVal(annotationNode));
                 }
                 if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/ClientOnly;")) {
                     if (!CLIENT) {
@@ -66,26 +64,33 @@ public class CompactTransformer implements ClassTransformer {
             }
         }
         boolean isMC = classNode.name.startsWith("net/minecraft/");
+        boolean isInterface = (classNode.access&ACC_INTERFACE) != 0;
+        if (isMC || isInterface) {
+            classNode.access = ((classNode.access&MASK)|ACC_PUBLIC);
+        }
         if (classNode.methods != null) {
             Iterator<MethodNode> methodIterator = classNode.methods.iterator();
             methods:
             while (methodIterator.hasNext()) {
                 MethodNode methodNode = methodIterator.next();
+                if (methodNode.localVariables != null) {
+                    methodNode.localVariables.clear();
+                }
                 if (mod && (methodNode.name.equals("onClientInit") || methodNode.name.equals("onClientPostInit") ||
                         methodNode.desc.equals("(Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;Lnet/minecraft/world/entity/EntityType;)Lnet/minecraft/client/renderer/entity/EntityRenderer;"))) {
                     methodIterator.remove();
                     continue;
                 }
-                if (methodNode.invisibleTypeAnnotations != null) {
-                    for (TypeAnnotationNode annotationNode : methodNode.invisibleTypeAnnotations) {
+                if (methodNode.invisibleAnnotations != null) {
+                    for (AnnotationNode annotationNode : methodNode.invisibleAnnotations) {
                         if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Require;")) {
-                            if (!Launch.hasClass(((Type) annotationNode.values.get(0)).getDescriptor())) {
+                            if (!Launch.hasClass(ASMUtil.getTypeVal(annotationNode).getDescriptor())) {
                                 methodIterator.remove();
                                 continue methods;
                             }
                         }
                         if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/RemoveIf;")) {
-                            if (Launch.hasClass(((Type) annotationNode.values.get(0)).getDescriptor())) {
+                            if (Launch.hasClass(ASMUtil.getTypeVal(annotationNode).getDescriptor())) {
                                 methodIterator.remove();
                                 continue methods;
                             }
@@ -118,7 +123,7 @@ public class CompactTransformer implements ClassTransformer {
                                 desc = methodNode.desc;
                                 desc = desc.substring(desc.indexOf(')')) + ")V";
                             } else {
-                                desc = annotationNode.values.get(0).toString();
+                                desc = ASMUtil.getStrVal(annotationNode);
                                 if (desc.isEmpty()) {
                                     desc = methodNode.desc;
                                     desc = desc.substring(desc.indexOf(')')) + ")V";
@@ -145,7 +150,7 @@ public class CompactTransformer implements ClassTransformer {
                     }
                 }
                 if (isMC || methodNode.name.equals("<init>")) {
-                    methodNode.access = (methodNode.access&~(ACC_PRIVATE|ACC_PROTECTED))|ACC_PUBLIC;
+                    methodNode.access = ((methodNode.access&MASK)|ACC_PUBLIC);
                 }
             }
         }
@@ -154,16 +159,16 @@ public class CompactTransformer implements ClassTransformer {
             fields:
             while (fieldsIterator.hasNext()) {
                 FieldNode fieldNode = fieldsIterator.next();
-                if (fieldNode.invisibleTypeAnnotations != null) {
-                    for (TypeAnnotationNode annotationNode : fieldNode.invisibleTypeAnnotations) {
+                if (fieldNode.invisibleAnnotations != null) {
+                    for (AnnotationNode annotationNode : fieldNode.invisibleAnnotations) {
                         if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Require;")) {
-                            if (!Launch.hasClass(((Type) annotationNode.values.get(0)).getDescriptor())) {
+                            if (!Launch.hasClass(ASMUtil.getTypeVal(annotationNode).getDescriptor())) {
                                 fieldsIterator.remove();
                                 continue fields;
                             }
                         }
                         if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/RemoveIf;")) {
-                            if (Launch.hasClass(((Type) annotationNode.values.get(0)).getDescriptor())) {
+                            if (Launch.hasClass(ASMUtil.getTypeVal(annotationNode).getDescriptor())) {
                                 fieldsIterator.remove();
                                 continue fields;
                             }
@@ -185,6 +190,9 @@ public class CompactTransformer implements ClassTransformer {
                             continue fields;
                         }
                     }
+                }
+                if (isMC) {
+                    fieldNode.access = ((fieldNode.access&MASK)|ACC_PUBLIC|(isInterface?ACC_FINAL:0));
                 }
             }
         }

@@ -1,6 +1,5 @@
 package net.puzzle_mod_loader.core;
 
-import net.puzzle_mod_loader.compact.Constructor;
 import net.puzzle_mod_loader.compact.Implement;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -30,7 +29,7 @@ import java.util.LinkedList;
 import java.util.function.Supplier;
 
 public class GameRegistry {
-    private static LinkedList<Runnable> awaitTasks = new LinkedList<>();
+    private static final LinkedList<Runnable> awaitTasks = new LinkedList<>();
     private static boolean registryModified;
 
     public static boolean isRegistryModified() {
@@ -74,18 +73,14 @@ public class GameRegistry {
         return Registry.register(Registry.ITEM, var0, var1);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends AbstractContainerMenu> MenuType<T> registerContainer(ResourceLocation var0, MenuSupplier<T> var1) {
         registryModified = true;
-        return Registry.register(Registry.MENU, var0, newMenuType(var1));
-    }
-
-    @Constructor("(Lnet/minecraft/world/inventory/MenuType$MenuSupplier;)V")
-    private static <T extends AbstractContainerMenu> MenuType<T> newMenuType(MenuSupplier<T> menuSupplier) {
-        return null;
+        return Registry.register(Registry.MENU, var0, new MenuType<T>((MenuType.MenuSupplier<T>) var1));
     }
 
     @Implement("net.minecraft.world.inventory.MenuType$MenuSupplier")
-    public interface MenuSupplier<T extends AbstractContainerMenu> {
+    public interface MenuSupplier<T extends AbstractContainerMenu> /* extends MenuType.MenuSupplier<T> */ {
         T create(int var1, Inventory var2);
     }
 

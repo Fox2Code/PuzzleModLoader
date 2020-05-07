@@ -36,7 +36,7 @@ public class ModDataPack extends FileResourcePack {
     }
 
     @Override
-    protected InputStream getResource(String s) throws IOException {
+    public InputStream getResource(String s) throws IOException {
         byte[] data = extData.get(s);
         if (data != null) {
             return new ByteArrayInputStream(data);

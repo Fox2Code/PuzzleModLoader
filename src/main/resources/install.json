@@ -1,14 +1,14 @@
 {
-  "target": ["1.15", "1.15.1"],
+  "target": ["1.15", "1.15.1", "1.15.2", "20w18a"],
   "dependencies": {
     "https://repo1.maven.org/maven2/": [
-      "org.ow2.asm:asm:7.3.1",
-      "org.ow2.asm:asm-tree:7.3.1",
-      "org.ow2.asm:asm-analysis:7.3.1",
-      "org.ow2.asm:asm-commons:7.3.1",
-      "org.ow2.asm:asm-util:7.3.1",
-      "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.61",
-      "org.jetbrains.kotlin:kotlin-stdlib:1.3.61"
+      "org.ow2.asm:asm:8.0.1",
+      "org.ow2.asm:asm-tree:8.0.1",
+      "org.ow2.asm:asm-analysis:8.0.1",
+      "org.ow2.asm:asm-commons:8.0.1",
+      "org.ow2.asm:asm-util:8.0.1",
+      "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.72",
+      "org.jetbrains.kotlin:kotlin-stdlib:1.3.72"
     ],
     "https://repo.spongepowered.org/maven/": [
       "org.spongepowered:mixin:0.8"

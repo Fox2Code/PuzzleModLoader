@@ -6,4 +6,5 @@ public interface EnvMirror {
     void testEventCancel() throws Throwable;
     void testReflectStaticExpr() throws Throwable;
     void testMixin() throws Throwable;
+    void testCompactImplement() throws Throwable;
 }

@@ -29,9 +29,13 @@ public class Tests {
         Env.getEnvMirror().testReflectStaticExpr();
     }
 
-
     @Test
     public void testMixin() throws Throwable {
         Env.getEnvMirror().testMixin();
+    }
+
+    @Test
+    public void testCompactImplement() throws Throwable {
+        Env.getEnvMirror().testCompactImplement();
     }
 }

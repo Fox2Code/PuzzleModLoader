@@ -57,4 +57,9 @@ public class EnvInit implements EnvMirror {
         MixinTransformer.forceReload(); // Force reload the configs
         MixinTest.test();
     }
+
+    @Override
+    public void testCompactImplement() throws Throwable {
+        CompactTest.testImplement();
+    }
 }

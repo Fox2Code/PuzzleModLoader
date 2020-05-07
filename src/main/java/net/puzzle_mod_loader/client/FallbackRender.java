@@ -17,12 +17,12 @@ public class FallbackRender<T extends Entity> extends EntityRenderer<T> {
     }
 
     @Override
-    protected int getBlockLightLevel(T t, float v) {
+    public int getBlockLightLevel(T t, float v) {
         return 15;
     }
 
     @Override
-    protected boolean shouldShowName(T t) {
+    public boolean shouldShowName(T t) {
         return true;
     }
 }

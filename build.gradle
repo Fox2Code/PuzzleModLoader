@@ -6,8 +6,8 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.fox2code:udk:1.2.3'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61"
+        classpath 'com.fox2code:udk:1.3.3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72"
     }
 }
 
@@ -26,16 +26,18 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.ow2.asm:asm-commons:7.3.1'
-    implementation 'org.ow2.asm:asm-util:7.3.1'
+    implementation 'org.ow2.asm:asm-commons:8.0.1'
+    implementation 'org.ow2.asm:asm-util:8.0.1'
     implementation 'org.spongepowered:mixin:0.8'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.61'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.72'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
 udk {
     version = "1.15.2"
     main = "net.puzzle_mod_loader.launch.LaunchClient"
+    mainServer = "net.puzzle_mod_loader.launch.LaunchServer"
+    open = true
 }
 
 jar {
