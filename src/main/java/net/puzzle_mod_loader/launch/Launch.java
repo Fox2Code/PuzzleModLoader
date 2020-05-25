@@ -38,12 +38,18 @@ public class Launch {
         return classLoader.getResource(clName.replace('.','/')+".class") != null;
     }
 
+    public static void loadTypeFix(String config) {
+        // TODO Implement function
+    }
+
     public static void initCore(boolean client) throws ReflectiveOperationException {
         Launch.client = client;
         File logs = new File("logs");
         if (!logs.exists()) {
             logs.mkdirs();
         }
+        loadTypeFix("typefix.puzzle.txt");
+        loadTypeFix("typefix.puzzle.snapshot.txt");
         classLoader = new PuzzleClassLoader(Launch.class.getClassLoader());
         classLoader.addTransformerExclusion("net.puzzle_mod_loader.core.");
         classLoader.addTransformerExclusion("net.puzzle_mod_loader.utils.");

@@ -55,7 +55,7 @@ public class ModLoader {
         mod.id = data[1];
         mod.name = data[2];
         mod.version = data[3];
-        mod.file = new File(mod.getClass().getProtectionDomain()
+        mod.file = new File(data[5] == null ? inject : mod.getClass().getProtectionDomain()
                 .getCodeSource().getLocation().getFile());
         mod.hash = data[5];
     }
@@ -150,6 +150,9 @@ public class ModLoader {
                 : file.toURI().toURL(), metaData);
         if (!dev) {
             Launch.getClassLoader().addURL(file.toURI().toURL());
+        }
+        if (Launch.getClassLoader().getResource("typefix."+metaData[1]+".txt") != null) {
+            Launch.loadTypeFix("typefix."+metaData[1]+".txt");
         }
         if (Launch.getClassLoader().getResource("mixins."+metaData[1]+".json") != null) {
             Mixins.addConfiguration("mixins."+metaData[1]+".json");
