@@ -55,7 +55,7 @@ public class ModLoader {
         mod.id = data[1];
         mod.name = data[2];
         mod.version = data[3];
-        mod.file = new File(data[5] == null ? inject : mod.getClass().getProtectionDomain()
+        mod.file = new File(data[5].isEmpty() ? inject : mod.getClass().getProtectionDomain()
                 .getCodeSource().getLocation().getFile());
         mod.hash = data[5];
     }
