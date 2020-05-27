@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -16,6 +17,15 @@ import java.util.Objects;
  * Easier way to do reflection in java
  */
 public final class ReflectedClass implements Iterable<ReflectedClass> {
+    private static Field modifiersField;
+
+    static {
+        try {
+            modifiersField = Field.class.getDeclaredField("modifiers");
+            Java9Fix.setAccessible(modifiersField);
+        } catch (ReflectiveOperationException e) {}
+    }
+
     public static final ReflectedClass NULL = new ReflectedClass(null);
 
     public static ReflectedClass of(Object object) {
@@ -90,7 +100,17 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
     }
 
     public Object get0(String name) throws ReflectiveOperationException {
-        return findField(name).get(this.getObject());
+        try {
+            return findField(name).get(this.getObject());
+        } catch (NoSuchFieldException e) {
+            if (this.isEnum()) {
+               Object o = this.getEnum0(name);
+               if (o != null) {
+                   return o;
+               }
+            }
+            throw e;
+        }
     }
 
     public void set(String name, Object value) throws ReflectiveOperationException {
@@ -98,7 +118,14 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
     }
 
     public void set0(String name, Object value) throws ReflectiveOperationException {
-        findField(name).set(this.getObject(), value);
+        Field field = findField(name);
+        if (field.isEnumConstant()) {
+            throw new IllegalAccessException("Can't modify enum constants!");
+        }
+        if ((field.getModifiers() & Modifier.FINAL) != 0) {
+            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        }
+        field.set(this.getObject(), value);
     }
 
     public ReflectedClass run(String name, Object... args) throws ReflectiveOperationException {
@@ -130,17 +157,23 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
             if (args.length == 0) {
                 return runAccessible(((Class<?>) this.object).getDeclaredConstructor());
             } else {
-                return runAccessible(((Class<?>) this.object).getDeclaredConstructors());
+                return runAccessible(((Class<?>) this.object).getDeclaredConstructors(), args);
             }
         } else throw new IllegalAccessException("Unable to create an instance on a non static context!");
     }
 
     private Object runAccessible(Executable[] executables,Object... args) throws ReflectiveOperationException {
+        System.out.println(Arrays.toString(executables));
+        System.out.println(Arrays.toString(args));
         global:
         for (Executable executable : executables) if (executable.getParameterCount() == args.length) {
             Parameter[] parameters = executable.getParameters();
+            System.out.println(Arrays.toString(parameters));
             for (int i = 0;i < args.length;i++) if (args[i] != null) {
-                if (!generify(parameters[i].getType()).isAssignableFrom(args[i].getClass())) continue global;
+                if (!generify(parameters[i].getType()).isAssignableFrom(args[i].getClass())) {
+                    System.out.println(parameters[i].getType() + " != " + args[i].getClass());
+                    continue global;
+                }
             }
             return runAccessible(executable, args);
         }
@@ -156,7 +189,19 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
             }
             cl = cl.getSuperclass();
         }
-        throw new NoSuchMethodException("No field found!");
+        throw new NoSuchFieldException("No field found!");
+    }
+
+    private Field findField2(String name1,String name2) throws ReflectiveOperationException {
+        Class<?> cl = this.getObjClass();
+        while (cl != Object.class && cl != null) {
+            for (Field field:cl.getDeclaredFields()) if ((field.getName().equals(name1) || field.getName().equals(name2)) && Modifier.isStatic(field.getModifiers()) == this.isClass()) {
+                if (!field.isAccessible()) Java9Fix.setAccessible(field);
+                return field;
+            }
+            cl = cl.getSuperclass();
+        }
+        throw new NoSuchFieldException("No field found!");
     }
 
     private Method findMethod(String name,Object... args) throws ReflectiveOperationException {
@@ -180,6 +225,9 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
     public Object runAccessible(Executable executable,Object... args) throws ReflectiveOperationException {
         if (!executable.isAccessible()) Java9Fix.setAccessible(executable);
         if (executable instanceof Constructor) {
+            if (executable.getDeclaringClass().isEnum()) {
+                return forceNewInstance((Constructor<?>) executable, args);
+            }
             return ((Constructor<?>) executable).newInstance(args);
         }
         boolean isStatic;
@@ -194,6 +242,67 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
             return ((Method) executable).invoke(this.getObject(),args);
         }
         throw new IllegalArgumentException("Invalid executable type! (Found: "+executable.getClass().getName()+")");
+    }
+
+    private void setFinal(Field field, Object value) throws ReflectiveOperationException {
+        if (field.getType() == boolean.class && value instanceof Boolean) {
+            Java9Fix.setBoolean(this.object, field, (Boolean) value);
+            return;
+        }
+        ReflectedClass reflectedField = ReflectedClass.of(field);
+        ReflectedClass accessor = reflectedField.run("getFieldAccessor", (Object) null);
+        Java9Fix.setBoolean(accessor.getHandle(), accessor.findField("isReadOnly"), false);
+        accessor.run("set", this.getObject(), value);
+    }
+
+    private Object forceNewInstance(Constructor<?> constructor,Object... args) throws ReflectiveOperationException {
+        ReflectedClass reflectedConstruct = ReflectedClass.of(constructor);
+        ReflectedClass ca = reflectedConstruct.get("constructorAccessor");
+        if (ca.isNull()) {
+            reflectedConstruct.set("constructorAccessor", ca = reflectedConstruct.run("acquireConstructorAccessor"));
+        }
+        return ca.run0("newInstance", (Object) args);
+    }
+
+    public ReflectedClass getEnum(String id) throws ReflectiveOperationException {
+        return ReflectedClass.of(this.getEnum0(id));
+    }
+
+    public Enum<?> getEnum0(String id) throws ReflectiveOperationException {
+        if (!this.isEnum()) {
+            throw new ClassCastException("This method only work on enums!");
+        }
+        return (Enum<?>) this.run0("byName", id);
+    }
+
+    public ReflectedClass addEnum(String id, Object... args) throws ReflectiveOperationException {
+        for (int i = 0;i < args.length;i++) if (args[i] instanceof ReflectedClass) args[i] = ((ReflectedClass) args[i]).getObject();
+        return ReflectedClass.of(addEnum0(id, args));
+    }
+
+    public Enum<?> addEnum0(String id, Object... args) throws ReflectiveOperationException {
+        if (!this.isEnum()) {
+            throw new ClassCastException("This method only work on enums!");
+        }
+        if (this.isAbstract()) {
+            throw new ClassCastException("This method can't work on abstract enums!");
+        }
+        Field field = this.findField2("$VALUES", "ENUM$VALUES");
+        Enum<?> enumNew;
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (field) { // MultiThreading safe
+            Enum<?>[] enumFull = (Enum<?>[]) field.get(null);
+            for (Enum<?> enumI:enumFull) if (enumI.name().equals(id)) {
+                throw new IllegalArgumentException("Id "+id+" already registred!");
+            }
+            enumNew = (Enum<?>) this.newInstance0(ArrayUtils.prepend(args, id, enumFull.length));
+            enumFull = ArrayUtils.append(enumFull, enumNew);
+            if ((field.getModifiers() & Modifier.FINAL) != 0) {
+                modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+            }
+            field.set(null, enumFull);
+        }
+        return enumNew;
     }
 
     public String asString() {
@@ -222,6 +331,14 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
 
     public boolean isClass() {
         return this.object instanceof Class;
+    }
+
+    public boolean isAbstract() {
+        return this.object instanceof Class && (((Class<?>) this.object).getModifiers() & Modifier.ABSTRACT) != 0;
+    }
+
+    public boolean isEnum() {
+        return this.object instanceof Class && ((Class<?>) this.object).isEnum();
     }
 
     public boolean isNull() {
@@ -261,8 +378,16 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
     @NotNull
     @Override
     public Iterator<ReflectedClass> iterator() {
+        Object object = this.object;
         if (this.isClass()) {
-            throw new ClassCastException("Can't iterate on static context");
+            if (!this.isEnum()) {
+                throw new ClassCastException("Can't iterate on static context");
+            }
+            try {
+                object = this.run0("values");
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
         }
         if (object instanceof Object[]) {
             final Object[] array = (Object[]) object;
@@ -303,12 +428,9 @@ public final class ReflectedClass implements Iterable<ReflectedClass> {
     }
 
     public static abstract class Reflective {
-        private ReflectedClass reflectedClass;
+        private final ReflectedClass reflectedClass = new ReflectedClass(this);
 
         public final ReflectedClass asReflectedClass() {
-            if (reflectedClass == null) {
-                this.reflectedClass = new ReflectedClass(this);
-            }
             return reflectedClass;
         }
 

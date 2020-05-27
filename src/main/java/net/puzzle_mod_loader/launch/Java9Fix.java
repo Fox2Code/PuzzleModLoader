@@ -30,13 +30,18 @@ public class Java9Fix {
                 throw new InternalError("Unable to find URLClassPath class", ex);
             }
         }
-        if (!java8) try {
-            Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+        Class<?> unsafeClass = null;
+        try {
+            unsafeClass = Class.forName("sun.misc.Unsafe");
             Field field = unsafeClass.getDeclaredField("theUnsafe");
             field.setAccessible(true);
             unsafe = field.get(null);
             fieldOffset = unsafeClass.getDeclaredMethod("objectFieldOffset", Field.class);
             fieldPutBool = unsafeClass.getDeclaredMethod("putBoolean", Object.class, long.class, boolean.class);
+        } catch (ReflectiveOperationException e) {
+            throw new Error(e);
+        }
+        if (!java8) /* try */ {
             try {
                 //Disable Java9+ Reflection Warnings
                 Method putObjectVolatile = unsafeClass.getDeclaredMethod("putObjectVolatile", Object.class, long.class, Object.class);
@@ -60,9 +65,9 @@ public class Java9Fix {
             } catch (ReflectiveOperationException ignored) {
                 System.out.println("[Java9Fix]: Unable to disable reflections checks");
             }
-        } catch (ReflectiveOperationException e) {
+        } /* catch (ReflectiveOperationException e) {
             throw new InternalError("Couldn't init bypass!", e);
-        }
+        } */
         try {
             getURLs = URLClassPath.getDeclaredMethod("getURLs");
             Java9Fix.setAccessible(getURLs);
@@ -75,16 +80,16 @@ public class Java9Fix {
     private static long accessOffset;
 
     public static void setAccessible(AccessibleObject field) throws ReflectiveOperationException {
-        if (java8) {
-            field.setAccessible(true);
-        } else {
-            if (access == null) {
-                access = AccessibleObject.class.getDeclaredField("override");
-                accessOffset = (Long) fieldOffset.invoke(unsafe, access);
-                setAccessible(access);
-            }
-            fieldPutBool.invoke(unsafe, field, accessOffset, true);
+        if (access == null) {
+            access = AccessibleObject.class.getDeclaredField("override");
+            accessOffset = (Long) fieldOffset.invoke(unsafe, access);
+            fieldPutBool.invoke(unsafe, access, accessOffset, true);
         }
+        fieldPutBool.invoke(unsafe, field, accessOffset, true);
+    }
+
+    public static void setBoolean(Object obj, Field field, boolean value) throws ReflectiveOperationException {
+        fieldPutBool.invoke(unsafe, obj, (Long) fieldOffset.invoke(field, value), true);
     }
 
     public static void openModule(Class<?> cl) throws ReflectiveOperationException {

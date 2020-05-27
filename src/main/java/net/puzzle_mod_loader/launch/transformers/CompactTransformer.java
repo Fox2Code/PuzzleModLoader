@@ -65,6 +65,7 @@ public class CompactTransformer implements ClassTransformer {
         }
         boolean isMC = classNode.name.startsWith("net/minecraft/");
         boolean isInterface = (classNode.access&ACC_INTERFACE) != 0;
+        boolean isEnum = (classNode.access&ACC_ENUM) != 0;
         if (isMC || isInterface) {
             classNode.access = ((classNode.access&MASK)|ACC_PUBLIC);
         }
@@ -159,6 +160,9 @@ public class CompactTransformer implements ClassTransformer {
             fields:
             while (fieldsIterator.hasNext()) {
                 FieldNode fieldNode = fieldsIterator.next();
+                if (isEnum && (fieldNode.access & ACC_FINAL) != 0 && (fieldNode.name.equals("$VALUES") || fieldNode.name.equals("ENUM$VALUES"))) {
+                    fieldNode.access &= ~ ACC_FINAL;
+                }
                 if (fieldNode.invisibleAnnotations != null) {
                     for (AnnotationNode annotationNode : fieldNode.invisibleAnnotations) {
                         if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Require;")) {

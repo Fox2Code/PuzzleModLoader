@@ -7,4 +7,5 @@ public interface EnvMirror {
     void testReflectStaticExpr() throws Throwable;
     void testMixin() throws Throwable;
     void testCompactImplement() throws Throwable;
+    void testReflectEnumAdd() throws Throwable;
 }

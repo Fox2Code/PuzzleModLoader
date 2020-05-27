@@ -30,6 +30,11 @@ public class Tests {
     }
 
     @Test
+    public void testReflectEnumAdd() throws Throwable {
+        Env.getEnvMirror().testReflectEnumAdd();
+    }
+
+    @Test
     public void testMixin() throws Throwable {
         Env.getEnvMirror().testMixin();
     }
