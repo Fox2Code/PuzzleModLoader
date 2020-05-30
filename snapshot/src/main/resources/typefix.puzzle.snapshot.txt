@@ -1,2 +1,0 @@
-net.minecraft.world.level.block.state.BlockBehaviour > net.minecraft.world.level.block.Block
-net.minecraft.world.level.block.state.BlockBehaviour$Properties | net.minecraft.world.level.block.Block$Properties

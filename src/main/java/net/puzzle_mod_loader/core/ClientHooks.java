@@ -1,5 +1,6 @@
 package net.puzzle_mod_loader.core;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerStatusPinger;
@@ -10,6 +11,7 @@ import net.puzzle_mod_loader.events.client.*;
 import net.puzzle_mod_loader.events.gui.ChangeGuiEvent;
 import net.puzzle_mod_loader.events.gui.GuiInitEvent;
 import net.puzzle_mod_loader.events.gui.GuiResizeEvent;
+import net.puzzle_mod_loader.events.render.GuiPreRenderEvent;
 import net.puzzle_mod_loader.events.render.GuiRenderEvent;
 import net.puzzle_mod_loader.events.render.PostUIRenderEvent;
 import net.puzzle_mod_loader.events.render.PostWorldRenderEvent;
@@ -49,16 +51,19 @@ public class ClientHooks {
         EventManager.processEvent(new GuiResizeEvent(gui));
     }
 
-    public static void clientGuiRender(Screen gui,int var1, int var2, float var3) {
-        gui.render(var1, var2, var3);
+    public static void clientGuiRender(Screen gui, PoseStack poseStack, int var1, int var2, float var3) {
         getProfiler().push("puzzle");
-        EventManager.processEvent(new GuiRenderEvent(gui));
+        EventManager.processEvent(new GuiPreRenderEvent(gui, poseStack));
+        getProfiler().pop();
+        gui.render(poseStack, var1, var2, var3);
+        getProfiler().push("puzzle");
+        EventManager.processEvent(new GuiRenderEvent(gui, poseStack));
         getProfiler().pop();
     }
 
-    public static void postWorld() {
+    public static void postWorld(PoseStack poseStack) {
         getProfiler().push("puzzle");
-        EventManager.processEvent(new PostWorldRenderEvent());
+        EventManager.processEvent(new PostWorldRenderEvent(poseStack));
         getProfiler().pop();
     }
 
@@ -73,7 +78,7 @@ public class ClientHooks {
 
     public static void postUIRender() {
         getProfiler().push("puzzle");
-        EventManager.processEvent(new PostUIRenderEvent());
+        EventManager.processEvent(new PostUIRenderEvent(new PoseStack()));
         getProfiler().pop();
     }
 

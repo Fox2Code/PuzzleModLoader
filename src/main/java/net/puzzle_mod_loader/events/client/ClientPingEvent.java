@@ -2,6 +2,7 @@ package net.puzzle_mod_loader.events.client;
 
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerStatusPinger;
+import net.minecraft.network.chat.Component;
 
 public class ClientPingEvent extends ClientEvent {
     private final ServerData serverData;
@@ -28,19 +29,19 @@ public class ClientPingEvent extends ClientEvent {
         this.serverData.protocol = protocol;
     }
 
-    public String getStatus() {
+    public Component getStatus() {
         return this.serverData.status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Component status) {
         this.serverData.status = status;
     }
 
-    public String getVersion() {
+    public Component getVersion() {
         return this.serverData.version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(Component version) {
         this.serverData.version = version;
     }
 }

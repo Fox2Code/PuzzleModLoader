@@ -52,8 +52,8 @@ public class ClientHandler {
                 default:
                     text = size+" Mods Loaded!";
             }
-            Minecraft.getInstance().font.drawShadow("Puzzle Mod Loader", 2F, 2F, 0xFFFFFF);
-            Minecraft.getInstance().font.drawShadow(text, 2F, 11F, 0xFFFFFF);
+            Minecraft.getInstance().font.drawShadow(event.getPoseStack(), "Puzzle Mod Loader", 2F, 2F, 0xFFFFFF);
+            Minecraft.getInstance().font.drawShadow(event.getPoseStack(), text, 2F, 11F, 0xFFFFFF);
         }
     }
 
@@ -90,12 +90,12 @@ public class ClientHandler {
             if (pos > 8) {
                 GL11.glPushMatrix();
                 GL11.glScaled(0.5F, 0.5F, 0.5F);
-                font.drawShadow(Launch.lastLoadedClassName, tmp - (font.width(Launch.lastLoadedClassName)/2F), (pos - 8) * 2, new Color(255, 255, 255).getRGB());
+                font.drawShadow(event.getPoseStack(), Launch.lastLoadedClassName, tmp - (font.width(Launch.lastLoadedClassName)/2F), (pos - 8) * 2, new Color(255, 255, 255).getRGB());
                 GL11.glPopMatrix();
             }
             tmp = (tmp) - font.width(LOADING_MESSAGE);
             int color = 150 + Math.abs((int) (100-((System.currentTimeMillis()/2)%200)));
-            font.drawShadow(LOADING_MESSAGE, tmp/2F, pos, new Color(color, color, color).getRGB());
+            font.drawShadow(event.getPoseStack(), LOADING_MESSAGE, tmp/2F, pos, new Color(color, color, color).getRGB());
         }
     }
 

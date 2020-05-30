@@ -34,7 +34,7 @@ dependencies {
 }
 
 udk {
-    version = "1.15.2"
+    version = "20w22a"
     main = "net.puzzle_mod_loader.launch.LaunchClient"
     mainServer = "net.puzzle_mod_loader.launch.LaunchServer"
     open = true
@@ -62,13 +62,29 @@ finalSourcesJar.archiveVersion.set(jar.archiveVersion.getOrNull())
 finalSourcesJar.manifest = jar.manifest
 finalSourcesJar.from sourceSets.main.allSource
 
-project(":snapshot").afterEvaluate {
-    finalJar.from(project(":snapshot").sourceSets.main.output)
-    finalSourcesJar.from(project(":snapshot").sourceSets.main.allSource)
+final Project snapshot = project(":snapshot")
+
+snapshot.afterEvaluate {
+    finalJar.from(snapshot.sourceSets.main.output)
+    finalSourcesJar.from(snapshot.sourceSets.main.allSource)
 }
 
 (build.getTaskDependencies() as DefaultTaskDependency).getMutableValues().clear()
 build.dependsOn(finalJar, finalSourcesJar, test)
+
+// Fix Dev release mode
+
+static void fix(JavaExec javaExec, Project snapshot) {
+    javaExec.dependsOn(":snapshot:jar")
+    javaExec.classpath(snapshot.sourceSets.main.output)
+}
+
+project(":snapshot").afterEvaluate {
+    fix(runClient, snapshot)
+    fix(runClientJar, snapshot)
+    fix(runServer, snapshot)
+    fix(runServerJar, snapshot)
+}
 
 // Shortcut for dev
 tasks.register("runClientSnapshot") {

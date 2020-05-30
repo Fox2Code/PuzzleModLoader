@@ -3,6 +3,7 @@ package net.puzzle_mod_loader.client;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
@@ -17,7 +18,7 @@ public class FallbackRender<T extends Entity> extends EntityRenderer<T> {
     }
 
     @Override
-    public int getBlockLightLevel(T t, float v) {
+    public int getBlockLightLevel(T entity, BlockPos blockPos) {
         return 15;
     }
 

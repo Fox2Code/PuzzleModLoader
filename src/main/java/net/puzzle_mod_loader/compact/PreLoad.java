@@ -5,7 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Preload a defined class before this class is loaded
+ */
 @Retention(RetentionPolicy.CLASS)
-@Target({ElementType.FIELD,ElementType.METHOD,ElementType.TYPE,ElementType.CONSTRUCTOR})
-public @interface ClientOnly {
+@Target(ElementType.TYPE)
+public @interface PreLoad {
+    Class<?> value();
 }

@@ -18,7 +18,7 @@ dependencies {
 
 
 udk {
-    version = "20w18a"
+    version = "20w22a"
     main = "net.puzzle_mod_loader.launch.LaunchClient"
     mainServer = "net.puzzle_mod_loader.launch.LaunchServer"
     open = true

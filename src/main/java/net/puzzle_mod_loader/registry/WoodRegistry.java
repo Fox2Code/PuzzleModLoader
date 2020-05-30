@@ -55,9 +55,18 @@ public class WoodRegistry {
                 .addBlock("slab", Blocks.ACACIA_SLAB).addBlock("stairs", Blocks.ACACIA_STAIRS)
                 .addBlock("button", Blocks.ACACIA_BUTTON)
         );
-        try {
-            ReflectedClass.$(WoodRegistry.class, "SRegistry.woodUpdate()");
-        } catch (Throwable ignored) {}
+        WoodRegistry.woodHashMap.put("crimson", new Wood("crimson", WoodType.CRIMSON, Blocks.CRIMSON_STEM, Blocks.CRIMSON_PLANKS, Blocks.NETHER_WART_BLOCK,
+                Blocks.CRIMSON_FUNGUS, Blocks.STRIPPED_CRIMSON_STEM, new Color(126, 58, 86))
+                .addBlock("fence", Blocks.CRIMSON_FENCE).addBlock("gate", Blocks.CRIMSON_FENCE_GATE)
+                .addBlock("slab", Blocks.CRIMSON_SLAB).addBlock("stairs", Blocks.CRIMSON_STAIRS)
+                .addBlock("button", Blocks.CRIMSON_BUTTON)
+        );
+        WoodRegistry.woodHashMap.put("warped", new Wood("warped", WoodType.WARPED, Blocks.WARPED_STEM, Blocks.WARPED_PLANKS, Blocks.WARPED_WART_BLOCK,
+                Blocks.WARPED_FUNGUS, Blocks.STRIPPED_WARPED_STEM, new Color(57, 131, 130))
+                .addBlock("fence", Blocks.WARPED_FENCE).addBlock("gate", Blocks.WARPED_FENCE_GATE)
+                .addBlock("slab", Blocks.WARPED_SLAB).addBlock("stairs", Blocks.WARPED_STAIRS)
+                .addBlock("button", Blocks.WARPED_BUTTON)
+        );
         providers = new HashMap<>();
     }
 

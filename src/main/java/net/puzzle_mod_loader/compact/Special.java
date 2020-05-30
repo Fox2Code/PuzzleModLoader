@@ -5,7 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Special indicator is only intended for internal use
+ */
 @Retention(RetentionPolicy.CLASS)
-@Target({ElementType.FIELD,ElementType.METHOD,ElementType.TYPE,ElementType.CONSTRUCTOR})
-public @interface ClientOnly {
+@Target({ElementType.FIELD,ElementType.METHOD,ElementType.CONSTRUCTOR})
+public @interface Special {
+    String value() default "";
 }

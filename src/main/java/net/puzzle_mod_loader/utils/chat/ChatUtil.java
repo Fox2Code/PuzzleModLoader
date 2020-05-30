@@ -1,9 +1,12 @@
 package net.puzzle_mod_loader.utils.chat;
 
-
-
-
-//import net.minecraft.ChatFormatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
+import net.puzzle_mod_loader.compact.ClientOnly;
+import net.puzzle_mod_loader.utils.ClientUtils;
+import net.puzzle_mod_loader.utils.color.ColorUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,79 +36,64 @@ public class ChatUtil {
         return true;
     }
 
-    /*@ClientOnly
-    public static void sendMessage(String message) {
-        if (ClientUtils.world() != null && ClientUtils.player() != null) {
-            ClientUtils.player().sendMessage(makeComponent(message));
-        }
-    }*/
-
-    public static String addFormat(final String message, final String regex) {
-        return message.replaceAll("(?i)" + regex + "([0-9a-fklmnor])", "§$1");
+    @ClientOnly
+    public static void showMessage(String message) {
+        showMessage(makeComponent(message));
     }
 
-    /*private static TextComponent makeComponent(String message) {
-        message = message.replaceAll("\t", "    ");
-        for (final String key : ColorUtil.colors.keySet()) {
-            final ChatColor c = ColorUtil.colors.get(key);
-            message = message.replace(c.regex, "&" + c.color);
+    @ClientOnly
+    public static void showMessage(Component message) {
+        if (ClientUtils.world() != null && ClientUtils.player() != null) {
+            ClientUtils.player().sendMessage(message, ClientUtils.player().getUUID());
         }
-        message = addFormat(message, "&");
-        final String[] parts = message.split("§");
-        final TextComponent icc = new TextComponent("");
-        String[] array;
-        for (int length = (array = parts).length, j = 0; j < length; ++j) {
-            String part = array[j];
-            if (part.length() > 0) {
-                final char c2 = part.charAt(0);
-                part = part.substring(1);
-                final Style style = new Style();
-                switch (c2) {
-                    case 'k': {
-                        style.setObfuscated(true);
-                        break;
+    }
+
+    public static TextComponent makeComponent(String message) {
+        return makeComponent(message, "§");
+    }
+
+    public static TextComponent makeComponent(String message,final String validChars) {
+        TextComponent textComponent = new TextComponent("");
+        if (!message.isEmpty()) {
+            final StringBuilder buffer = new StringBuilder();
+            Style style = Style.EMPTY;
+            int index = 0;
+            while (message.length() > index) {
+                char c = message.charAt(index);
+                if (validChars.indexOf(c) != -1) {
+                    index++;
+                    if (index == message.length()) {
+                        buffer.append(c);
+                    } else {
+                        c = message.charAt(index);
+                        if (validChars.indexOf(c) != -1) {
+                            buffer.append(c);
+                        } else {
+                            ChatFormatting chatFormatting = ChatFormatting.getByCode(c);
+                            if (chatFormatting != null) {
+                                style = style.applyFormat(chatFormatting);
+                                if (buffer.length() != 0) {
+                                    textComponent.append(new TextComponent(buffer.toString()).setStyle(style));
+                                    buffer.setLength(0);
+                                }
+                            }
+                        }
                     }
-                    case 'l': {
-                        style.setBold(true);
-                        break;
-                    }
-                    case 'm': {
-                        style.setUnderlined(true);
-                        break;
-                    }
-                    case 'n': {
-                        style.setStrikethrough(true);
-                        break;
-                    }
-                    case 'o': {
-                        style.setItalic(true);
-                        break;
-                    }
-                    default: {
-                        style.setColor(charToFormat(c2));
-                        break;
-                    }
+                } else {
+                    buffer.append(c);
                 }
-                final String[] lines = part.split("\n");
-                for (int i = 0; i < lines.length; ++i) {
-                    final String line = lines[i];
-                    icc.append(new TextComponent(line).setStyle(style));
-                    if (i != lines.length - 1) {
-                        icc.append(new TextComponent("\n"));
-                    }
+                index++;
+            }
+            if (buffer.length() != 0) {
+                if (textComponent.getSiblings().isEmpty()) {
+                    textComponent = (TextComponent) new TextComponent(buffer.toString()).setStyle(style);
+                } else {
+                    textComponent.append(new TextComponent(buffer.toString()).setStyle(style));
                 }
             }
         }
-        return icc;
-    }*/
-
-    /*public static ChatFormatting charToFormat(final char c) {
-        ChatFormatting[] values;
-        for (int length = (values = ChatFormatting.values()).length, i = 0; i < length; ++i) {
-            final ChatFormatting ecf = values[i];
-        }
-        return ChatFormatting.RESET;
-    }*/
+        return textComponent;
+    }
 
     public static boolean isValidEmail(String line) {
         for(char c : line.toCharArray()) {
@@ -146,8 +134,8 @@ public class ChatUtil {
         start = Math.min(Math.max(0, start), line.length());
         end = Math.min(Math.max(0, end), line.length());
 
-        String pref = line.substring(0, start>end?end:start);
-        String suff = line.substring(start>end?start:end);
+        String pref = line.substring(0, Math.min(start, end));
+        String suff = line.substring(Math.max(start, end));
         return pref+character+suff;
     }
 
@@ -158,15 +146,10 @@ public class ChatUtil {
         }
         switch (c) {
             case 'k':
-                return Format.FORMAT;
             case 'l':
-                return Format.FORMAT;
             case 'm':
-                return Format.FORMAT;
             case 'n':
-                return Format.FORMAT;
             case 'o':
-                return Format.FORMAT;
             case 'r':
                 return Format.FORMAT;
             default:

@@ -3,7 +3,11 @@ package net.puzzle_mod_loader.launch;
 import net.puzzle_mod_loader.launch.rebuild.ClassData;
 import net.puzzle_mod_loader.launch.transformers.*;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 public class Launch {
     public static long lastLoadedClass;
@@ -39,7 +43,23 @@ public class Launch {
     }
 
     public static void loadTypeFix(String config) {
-        // TODO Implement function
+        URL url = classLoader.getResource(config);
+        if (url == null) return;
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (!line.startsWith("#")) {
+                    compactTransformer.injectTypeFixRule(line);
+                }
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    public static void putKey(String key,String value) {
+        compactTransformer.putKey(key, value);
     }
 
     public static void initCore(boolean client) throws ReflectiveOperationException {
@@ -48,9 +68,9 @@ public class Launch {
         if (!logs.exists()) {
             logs.mkdirs();
         }
+        classLoader = new PuzzleClassLoader(Launch.class.getClassLoader());
         loadTypeFix("typefix.puzzle.txt");
         loadTypeFix("typefix.puzzle.snapshot.txt");
-        classLoader = new PuzzleClassLoader(Launch.class.getClassLoader());
         classLoader.addTransformerExclusion("net.puzzle_mod_loader.core.");
         classLoader.addTransformerExclusion("net.puzzle_mod_loader.utils.");
         classLoader.addTransformerExclusion("net.puzzle_mod_loader.helper.");

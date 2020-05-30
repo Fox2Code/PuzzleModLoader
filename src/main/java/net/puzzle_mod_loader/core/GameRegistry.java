@@ -110,7 +110,11 @@ public class GameRegistry {
     }
 
     public static <T extends Entity> EntityType<T> registerEntity(ResourceLocation resourceLocation, EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory, EntityDimensions dimensions, boolean save, boolean fireImmune, boolean canSummon, boolean canSpawnFarFromPlayer) {
-        return registerEntity(resourceLocation, new EntityType<>(entityFactory, mobCategory, save, canSummon, fireImmune, canSpawnFarFromPlayer, dimensions));
+        return registerEntity(resourceLocation, entityFactory, mobCategory, dimensions, save, fireImmune, canSummon, canSpawnFarFromPlayer, 8, 5);
+    }
+
+    public static <T extends Entity> EntityType<T> registerEntity(ResourceLocation resourceLocation, EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory, EntityDimensions dimensions, boolean save, boolean fireImmune, boolean canSummon, boolean canSpawnFarFromPlayer,int clientTrackingRange,int updateInterval) {
+        return registerEntity(resourceLocation, new EntityType<>(entityFactory, mobCategory, save, canSummon, fireImmune, canSpawnFarFromPlayer, dimensions, clientTrackingRange, updateInterval));
     }
 
     public static <T extends Entity> EntityType<T> registerEntity(ResourceLocation resourceLocation, EntityType<T> entityType) {
@@ -126,6 +130,7 @@ public class GameRegistry {
         private final MobCategory mobCategory;
         private EntityDimensions entityDimensions;
         private boolean save, fireImmune, canSummon, canSpawnFarFromPlayer;
+        private int clientTrackingRange, updateInterval;
 
         public EntityTypeBuilder(ResourceLocation resourceLocation, EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory) {
             this.resourceLocation = resourceLocation;
@@ -136,6 +141,8 @@ public class GameRegistry {
             this.fireImmune = false;
             this.canSummon = true;
             this.canSpawnFarFromPlayer = mobCategory == MobCategory.CREATURE || mobCategory == MobCategory.MISC;
+            this.clientTrackingRange = 8;
+            this.updateInterval = 5;
         }
 
         public EntityTypeBuilder<T> setDimensions(EntityDimensions entityDimensions) {
@@ -168,8 +175,18 @@ public class GameRegistry {
             return this;
         }
 
+        public EntityTypeBuilder<T> setUpdateInterval(int updateInterval) {
+            this.updateInterval = updateInterval;
+            return this;
+        }
+
+        public EntityTypeBuilder<T> setClientTrackingRange(int clientTrackingRange) {
+            this.clientTrackingRange = clientTrackingRange;
+            return this;
+        }
+
         public EntityType<T> register() {
-            return registerEntity(resourceLocation, entityFactory, mobCategory, entityDimensions, save, fireImmune, canSummon, canSpawnFarFromPlayer);
+            return registerEntity(resourceLocation, entityFactory, mobCategory, entityDimensions, save, fireImmune, canSummon, canSpawnFarFromPlayer, clientTrackingRange, updateInterval);
         }
     }
 }

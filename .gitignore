@@ -41,8 +41,10 @@ local.properties
 .worksheet
 /run/
 /snapshot/run/
+/modpart/run/
 /logs/
 /snapshot/logs/
+/modpart/logs/
 .attach_pid*
 /gradle.properties
 /logs

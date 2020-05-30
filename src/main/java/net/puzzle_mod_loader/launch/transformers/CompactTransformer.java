@@ -9,10 +9,13 @@ import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CompactTransformer implements ClassTransformer {
     private static final boolean CLIENT = Launch.isClient();
     private static final int MASK = ~(ACC_PROTECTED|ACC_PRIVATE|ACC_FINAL);
+    private ConcurrentHashMap<String, String> keys = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, String> remap = new ConcurrentHashMap<>();
 
     @Override
     public byte[] transform(byte[] bytes, String className) {
@@ -39,10 +42,13 @@ public class CompactTransformer implements ClassTransformer {
                     }
                 }
                 if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Implement;")) {
-                    if (classNode.interfaces == null) {
-                        classNode.interfaces = new ArrayList<>();
+                    String i = ASMUtil.getStrVal(annotationNode);
+                    if (Launch.hasClass(i)) {
+                        if (classNode.interfaces == null) {
+                            classNode.interfaces = new ArrayList<>();
+                        }
+                        classNode.interfaces.add(ASMUtil.getStrVal(annotationNode));
                     }
-                    classNode.interfaces.add(ASMUtil.getStrVal(annotationNode));
                 }
                 if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/ClientOnly;")) {
                     if (!CLIENT) {
@@ -53,7 +59,14 @@ public class CompactTransformer implements ClassTransformer {
                         classNode.superName = "java/lang/Object";
                     }
                 }
+                if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/PreLoad;")) {
+                    String clName = ASMUtil.getTypeVal(annotationNode).getClassName();
+                    if (Launch.hasClass(clName)) try {
+                        Class.forName(clName, false, Launch.getClassLoader());
+                    } catch (Throwable ignored) {}
+                }
             }
+            classNode.invisibleAnnotations.removeIf(a -> a.desc.startsWith("Lnet/puzzle_mod_loader/compact/"));
         }
         boolean mod = classNode.superName.equals("net/puzzle_mod_loader/core/Mod") && !CLIENT;
         if (!CLIENT && !mod) {
@@ -148,7 +161,30 @@ public class CompactTransformer implements ClassTransformer {
                             insnList.add(new InsnNode(ARETURN));
                             methodNode.instructions = insnList;
                         }
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Rename;")) {
+                            methodNode.name = ASMUtil.getStrVal(annotationNode);
+                        }
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Special;")) {
+                            String str = ASMUtil.getStrVal(annotationNode);
+                            if (!str.isEmpty()) {
+                                for (String s:str.split("\\|")) {
+                                    int i = s.indexOf("=");
+                                    if (i == -1) {
+                                        if (!this.keys.containsKey(str)) {
+                                            methodIterator.remove();
+                                            continue methods;
+                                        }
+                                    } else {
+                                        if (!str.substring(i+1).equals(this.keys.get(str).substring(0, i))) {
+                                            methodIterator.remove();
+                                            continue methods;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
+                    methodNode.invisibleAnnotations.removeIf(a -> a.desc.startsWith("Lnet/puzzle_mod_loader/compact/"));
                 }
                 if (isMC || methodNode.name.equals("<init>")) {
                     methodNode.access = ((methodNode.access&MASK)|ACC_PUBLIC);
@@ -193,12 +229,74 @@ public class CompactTransformer implements ClassTransformer {
                             fieldsIterator.remove();
                             continue fields;
                         }
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Rename;")) {
+                            fieldNode.name = ASMUtil.getStrVal(annotationNode);
+                        }
+                        if (annotationNode.desc.equals("Lnet/puzzle_mod_loader/compact/Special;")) {
+                            String str = ASMUtil.getStrVal(annotationNode);
+                            if (!str.isEmpty()) {
+                                for (String s:str.split("\\|")) {
+                                    int i = s.indexOf("=");
+                                    if (i == -1) {
+                                        if (!this.keys.containsKey(str)) {
+                                            fieldsIterator.remove();
+                                            continue fields;
+                                        }
+                                    } else {
+                                        if (!str.substring(i+1).equals(this.keys.get(str).substring(0, i))) {
+                                            fieldsIterator.remove();
+                                            continue fields;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
+                    fieldNode.invisibleAnnotations.removeIf(a -> a.desc.startsWith("Lnet/puzzle_mod_loader/compact/"));
                 }
                 if (isMC) {
                     fieldNode.access = ((fieldNode.access&MASK)|ACC_PUBLIC|(isInterface?ACC_FINAL:0));
                 }
             }
+        }
+    }
+
+    public void putKey(String key,String value) {
+        this.keys.put(key, value);
+    }
+
+    public void injectTypeFixRule(String line) {
+        while (line.endsWith(" ")) line = line.substring(0, line.length()-1);
+        while (line.startsWith(" ")) line = line.substring(1);
+        int a = line.indexOf(' ');
+        int b = line.lastIndexOf(' ');
+        if (a == b) return; // Skip invalid lines
+        String pre = line.substring(0, a);
+        String post = line.substring(b+1);
+        String acc = line.substring(a+1, b);
+        String tmp;
+        switch (acc) {
+            default:
+                return; // Skip invalid lines
+            case "<":
+                tmp = pre;
+                pre = post;
+                post = tmp;
+            case ">":
+                if (!Launch.hasClass(post) && Launch.hasClass(pre)) {
+                    this.remap.put(pre.replace('.', '/'), post.replace('.', '/'));
+                }
+                return;
+            case "|":
+                boolean preE = Launch.hasClass(pre);
+                boolean postE = Launch.hasClass(post);
+                if (preE != postE) {
+                    if (preE) {
+                        this.remap.put(post.replace('.', '/'), pre.replace('.', '/'));
+                    } else {
+                        this.remap.put(pre.replace('.', '/'), post.replace('.', '/'));
+                    }
+                }
         }
     }
 }

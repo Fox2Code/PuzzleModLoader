@@ -127,7 +127,7 @@ public abstract class Mod extends ReflectedClass.Reflective {
     }
 
     public final <T extends Entity> EntityType<T> registerEntity(String id, EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory, EntityDimensions entityDimensions) {
-        return GameRegistry.registerEntity(new ResourceLocation(this.id, id), entityFactory, mobCategory, entityDimensions, true, false, true, mobCategory == MobCategory.CREATURE || mobCategory == MobCategory.MISC);
+        return GameRegistry.registerEntity(new ResourceLocation(this.id, id), entityFactory, mobCategory, entityDimensions, true, false, true, mobCategory == MobCategory.CREATURE || mobCategory == MobCategory.MISC, 8, 5);
     }
 
     public final <T extends Entity> GameRegistry.EntityTypeBuilder<T> newEntityTypeBuilder(String id, EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory, EntityDimensions entityDimensions) {
