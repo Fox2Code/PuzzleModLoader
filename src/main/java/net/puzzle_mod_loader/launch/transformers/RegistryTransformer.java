@@ -12,11 +12,11 @@ public class RegistryTransformer implements ClassTransformer {
         if (className.equals("net.minecraft.world.item.Items")) {
             ClassReader classReader = new ClassReader(bytes);
             ClassWriter classWriter = new ClassWriter(0);
-            classReader.accept(new ClassVisitor(ASM7, classWriter) {
+            classReader.accept(new ClassVisitor(ASM_BUILD, classWriter) {
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
                     if (name.equals("<clinit>")) {
-                        return new MethodVisitor(ASM7, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+                        return new MethodVisitor(ASM_BUILD, super.visitMethod(access, name, descriptor, signature, exceptions)) {
                             @Override
                             public void visitInsn(int opcode) {
                                 if (opcode == RETURN) {

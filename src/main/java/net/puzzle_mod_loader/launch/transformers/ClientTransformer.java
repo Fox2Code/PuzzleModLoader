@@ -9,7 +9,7 @@ public class ClientTransformer implements ClassTransformer {
         if (className.equals("net.minecraft.client.Minecraft")) {
             ClassReader classReader = new ClassReader(bytes);
             ClassWriter classWriter = new ClassWriter(0);
-            classReader.accept(new ClassVisitor(ASM7, classWriter) {
+            classReader.accept(new ClassVisitor(ASM_BUILD, classWriter) {
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
                     final boolean screenHook = name.equals("setScreen") && descriptor.equals("(Lnet/minecraft/client/gui/screens/Screen;)V");
@@ -81,7 +81,7 @@ public class ClientTransformer implements ClassTransformer {
         if (className.equals("net.minecraft.client.ClientBrandRetriever")) {
             ClassReader classReader = new ClassReader(bytes);
             ClassWriter classWriter = new ClassWriter(0);
-            classReader.accept(new ClassVisitor(ASM7, classWriter) {
+            classReader.accept(new ClassVisitor(ASM_BUILD, classWriter) {
                 @Override
                 public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
                     super.visit(version, access, name, signature, superName, interfaces);

@@ -22,8 +22,7 @@ import java.util.Map;
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRendererMixin {
     @Shadow
-    @Final
-    private Map<EntityType<?>, EntityRenderer<?>> renderers;
+    public Map<EntityType<?>, EntityRenderer<?>> renderers;
 
     @SuppressWarnings({"ConstantConditions"})
     @Inject(method = "registerRenderers",

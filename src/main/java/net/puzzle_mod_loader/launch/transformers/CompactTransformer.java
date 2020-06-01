@@ -14,8 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CompactTransformer implements ClassTransformer {
     private static final boolean CLIENT = Launch.isClient();
     private static final int MASK = ~(ACC_PROTECTED|ACC_PRIVATE|ACC_FINAL);
-    private ConcurrentHashMap<String, String> keys = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, String> remap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> keys = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> remap = new ConcurrentHashMap<>();
 
     @Override
     public byte[] transform(byte[] bytes, String className) {

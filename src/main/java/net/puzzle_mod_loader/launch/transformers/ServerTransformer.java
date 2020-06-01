@@ -12,11 +12,11 @@ public class ServerTransformer implements ClassTransformer {
         if (className.equals("net.minecraft.server.MinecraftServer")) {
             ClassReader classReader = new ClassReader(bytes);
             ClassWriter classWriter = new ClassWriter(0);
-            classReader.accept(new ClassVisitor(ASM7, classWriter) {
+            classReader.accept(new ClassVisitor(ASM_BUILD, classWriter) {
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
                     if (name.equals("run") && descriptor.equals("()V")) {
-                        return new MethodVisitor(ASM7, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+                        return new MethodVisitor(ASM_BUILD, super.visitMethod(access, name, descriptor, signature, exceptions)) {
                             boolean init, tick;
 
                             @Override

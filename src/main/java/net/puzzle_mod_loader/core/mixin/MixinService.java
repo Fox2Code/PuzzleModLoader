@@ -54,7 +54,7 @@ public class MixinService extends MixinServiceAbstract implements IMixinService,
 
     @Override
     public Collection<String> getPlatformAgents() {
-        return Collections.emptyList();
+        return Collections.singleton("net.puzzle_mod_loader.core.mixin.MixinPlatformAgent");
     }
 
     @Override

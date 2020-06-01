@@ -1,7 +1,10 @@
 package net.puzzle_mod_loader.launch.transformers;
 
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
 
 public class ASMUtil {
     public static String getStrVal(AnnotationNode annotationNode) {
@@ -31,5 +34,13 @@ public class ASMUtil {
             }
         }
         return null;
+    }
+
+    public static void injectPre(ClassNode classNode, String methodName, InsnList code) {
+        classNode.methods.forEach(m -> {
+            if (m.name.equals(methodName)) {
+                m.instructions.insertBefore(m.instructions.getFirst(), code);
+            }
+        });
     }
 }

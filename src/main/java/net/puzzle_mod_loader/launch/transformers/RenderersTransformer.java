@@ -10,11 +10,11 @@ public class RenderersTransformer implements ClassTransformer {
         if (className.equals("net.minecraft.client.renderer.GameRenderer")) {
             ClassReader classReader = new ClassReader(bytes);
             ClassWriter classWriter = new ClassWriter(0);
-            classReader.accept(new ClassVisitor(ASM7, classWriter) {
+            classReader.accept(new ClassVisitor(ASM_BUILD, classWriter) {
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
                     final boolean uiRender = name.equals("render");
-                    return new MethodVisitor(ASM7, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+                    return new MethodVisitor(ASM_BUILD, super.visitMethod(access, name, descriptor, signature, exceptions)) {
                         @Override
                         public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
                             if (opcode == INVOKEVIRTUAL && owner.equals("net/minecraft/client/gui/screens/Screen") && name.equals("render")) {
@@ -39,11 +39,11 @@ public class RenderersTransformer implements ClassTransformer {
         if (className.equals("net.minecraft.client.renderer.LevelRenderer")) {
             ClassReader classReader = new ClassReader(bytes);
             ClassWriter classWriter = new ClassWriter(0);
-            classReader.accept(new ClassVisitor(ASM7, classWriter) {
+            classReader.accept(new ClassVisitor(ASM_BUILD, classWriter) {
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
                     if (name.equals("renderLevel")) {
-                        return new MethodVisitor(ASM7, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+                        return new MethodVisitor(ASM_BUILD, super.visitMethod(access, name, descriptor, signature, exceptions)) {
                             @Override
                             public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
                                 super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);

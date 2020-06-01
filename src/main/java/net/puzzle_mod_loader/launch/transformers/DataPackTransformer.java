@@ -13,11 +13,11 @@ public class DataPackTransformer implements ClassTransformer {
                 className.equals("net.minecraft.client.resources.ClientPackSource")*/) {
             ClassReader classReader = new ClassReader(bytes);
             ClassWriter classWriter = new ClassWriter(0);
-            classReader.accept(new ClassVisitor(ASM7, classWriter) {
+            classReader.accept(new ClassVisitor(ASM_BUILD, classWriter) {
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
                     if (name.equals("loadPacks") && descriptor.equals("(Ljava/util/Map;Lnet/minecraft/server/packs/repository/UnopenedPack$UnopenedPackConstructor;)V")) {
-                        return new MethodVisitor(ASM7, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+                        return new MethodVisitor(ASM_BUILD, super.visitMethod(access, name, descriptor, signature, exceptions)) {
                             @Override
                             public void visitInsn(int opcode) {
                                 if (opcode == RETURN) {

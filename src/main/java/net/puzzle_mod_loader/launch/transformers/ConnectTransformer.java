@@ -9,10 +9,10 @@ public class ConnectTransformer implements ClassTransformer {
         if (className.equals("net.minecraft.client.multiplayer.ServerStatusPinger$1")) {
             ClassReader classReader = new ClassReader(bytes);
             ClassWriter classWriter = new ClassWriter(0);
-            classReader.accept(new ClassVisitor(ASM7, classWriter) {
+            classReader.accept(new ClassVisitor(ASM_BUILD, classWriter) {
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-                    return new MethodVisitor(ASM7, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+                    return new MethodVisitor(ASM_BUILD, super.visitMethod(access, name, descriptor, signature, exceptions)) {
                         @Override
                         public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
                             super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
@@ -32,7 +32,7 @@ public class ConnectTransformer implements ClassTransformer {
         if (className.equals("net.minecraft.client.gui.screens.ConnectScreen$1")) {
             ClassReader classReader = new ClassReader(bytes);
             ClassWriter classWriter = new ClassWriter(0);
-            classReader.accept(new ClassVisitor(ASM7, classWriter) {
+            classReader.accept(new ClassVisitor(ASM_BUILD, classWriter) {
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
                     return new MethodVisitor(ASM7, super.visitMethod(access, name, descriptor, signature, exceptions)) {
@@ -52,11 +52,11 @@ public class ConnectTransformer implements ClassTransformer {
                 || className.equals("net.minecraft.client.multiplayer.ClientPacketListener")) {
             ClassReader classReader = new ClassReader(bytes);
             ClassWriter classWriter = new ClassWriter(0);
-            classReader.accept(new ClassVisitor(ASM7, classWriter) {
+            classReader.accept(new ClassVisitor(ASM_BUILD, classWriter) {
                 @Override
                 public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
                     if (name.equals("handleLogin")) {
-                        return new MethodVisitor(ASM7, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+                        return new MethodVisitor(ASM_BUILD, super.visitMethod(access, name, descriptor, signature, exceptions)) {
                             @Override
                             public void visitInsn(int opcode) {
                                 if (opcode == RETURN) {
@@ -67,7 +67,7 @@ public class ConnectTransformer implements ClassTransformer {
                             }
                         };
                     } else if (name.equals("onDisconnect")) {
-                        return new MethodVisitor(ASM7, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+                        return new MethodVisitor(ASM_BUILD, super.visitMethod(access, name, descriptor, signature, exceptions)) {
                             @Override
                             public void visitCode() {
                                 super.visitCode();

@@ -83,10 +83,12 @@ public class Launch {
         classLoader.addClassTransformers(new RegistryTransformer());
         classLoader.addClassTransformers(new DataPackTransformer());
         classLoader.addClassTransformers(new ServerTransformer());
+        classLoader.addClassTransformers(new ServerOptimisationTransformer());
         if (client) {
             classLoader.addClassTransformers(new ClientTransformer());
             classLoader.addClassTransformers(new RenderersTransformer());
             classLoader.addClassTransformers(new ConnectTransformer());
+            classLoader.addClassTransformers(new ClientOptimisationTransformer());
         }
         classLoader.loadClass("net.puzzle_mod_loader.core.CoreInit").getDeclaredMethod("init").invoke(null);
     }
