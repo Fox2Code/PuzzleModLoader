@@ -1,5 +1,5 @@
-# PuzzleModLoader
-PuzzleModLoader is currently in development
+# PuzzleModLoader (Abandoned)
+PuzzleModLoader have currently no developers
 
 Website: [https://puzzle-mod-loader.net](https://puzzle-mod-loader.net)
 
